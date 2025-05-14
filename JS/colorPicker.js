@@ -10,18 +10,46 @@ const reRGB_AInt =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
 const reRGB_AFloat =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1(\.0)?|0?\.\d+)\s*\)/gs;
-
 const reHEX = /#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/gs;
 
-// 实现 DocumentColorProvider 接口
+/**
+ * ColorPicker 类实现 DocumentColorProvider 接口，用于在 VS Code 中提供颜色拾取功能。
+ */
 class ColorPicker {
+  /**
+   * 构造函数，初始化缓存属性。
+   */
   constructor() {
+    /**
+     * 缓存上一次处理的文档。
+     * @type {vscode.TextDocument | null}
+     */
     this.lastDocument = null;
+
+    /**
+     * 缓存上一次处理的颜色信息。
+     * @type {vscode.ColorInformation[]}
+     */
     this.lastColorInformations = [];
+
+    /**
+     * 缓存上一次处理的文档版本。
+     * @type {number}
+     */
     this.lastVersion = -1;
+
+    /**
+     * 缓存上一次处理的可见范围。
+     * @type {vscode.Range[]}
+     */
     this.lastVisibleRanges = [];
   }
 
+  /**
+   * 提供文档中的颜色信息。
+   * @param {vscode.TextDocument} document - 当前活动的文本文档。
+   * @returns {vscode.ColorInformation[]} - 文档中的颜色信息数组。
+   */
   provideDocumentColors(document) {
     try {
       // 获取当前的活动编辑器
@@ -43,29 +71,29 @@ class ColorPicker {
       ) {
         return this.lastColorInformations;
       } else {
-      const colorAndRanges = getColorAndRanges(document);
+        const colorAndRanges = getColorAndRanges(document);
 
-      // 更新缓存
-      this.lastDocument = document;
-      this.version = document.version;
-      this.lastColorInformations = colorAndRanges.map(
-        (item) => new vscode.ColorInformation(item.range, item.color)
-      );
+        // 更新缓存
+        this.lastDocument = document;
+        this.version = document.version;
+        this.lastColorInformations = colorAndRanges.map(
+          (item) => new vscode.ColorInformation(item.range, item.color)
+        );
 
-      return this.lastColorInformations;
+        return this.lastColorInformations;
       }
-
-      // const colorAndRanges = getColorAndRanges(document);
-      // return colorAndRanges.map(
-      //   (item) => new vscode.ColorInformation(item.range, item.color)
-      // );
     } catch (error) {
       console.error(error);
       return []; // 返回空数组表示没有颜色信息
     }
   }
 
-  // 当用户修改颜色时调用
+  /**
+   * 当用户修改颜色时调用，提供颜色表示形式。
+   * @param {vscode.Color} color - 用户选择的颜色。
+   * @param {object} context - 包含文档和范围的对象。
+   * @returns {Promise<vscode.ColorPresentation[]>} - 颜色表示形式的 Promise。
+   */
   async provideColorPresentations(color, context) {
     try {
       return [new vscode.ColorPresentation(this.colorToString(context, color))];
@@ -74,6 +102,12 @@ class ColorPicker {
     }
   }
 
+  /**
+   * 将颜色转换为字符串表示形式。
+   * @param {object} context - 包含文档和范围的对象。
+   * @param {vscode.Color} color - 要转换的颜色。
+   * @returns {string} - 颜色的字符串表示形式。
+   */
   colorToString(context, color) {
     const { document, range } = context;
     const string = document.getText(range);
@@ -97,7 +131,12 @@ class ColorPicker {
     }
   }
 
-  // 辅助方法：比较两个范围数组是否相等
+  /**
+   * 比较两个范围数组是否相等。
+   * @param {vscode.Range[]} ranges1 - 第一个范围数组。
+   * @param {vscode.Range[]} ranges2 - 第二个范围数组。
+   * @returns {boolean} - 如果两个范围数组相等，则返回 true；否则返回 false。
+   */
   _areRangesEqual(ranges1, ranges2) {
     if (ranges1.length !== ranges2.length) {
       return false;
@@ -120,6 +159,11 @@ class ColorPicker {
   }
 }
 
+/**
+ * 从文档中提取所有颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorAndRanges(document) {
   const colorAndRanges = [
     ...getColorNoPrefixRGBAndRanges(document),
@@ -133,6 +177,11 @@ function getColorAndRanges(document) {
   return colorAndRanges;
 }
 
+/**
+ * 从文档中提取 rgb(...) 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorRGBAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(reRGB)];
@@ -154,6 +203,11 @@ function getColorRGBAndRanges(document) {
   return map_list;
 }
 
+/**
+ * 从文档中提取 rgb(...) 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorNoPrefixRGBAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(NoPrefix_reRGB)];
@@ -174,6 +228,11 @@ function getColorNoPrefixRGBAndRanges(document) {
   return map_list;
 }
 
+/**
+ * 从文档中提取 rgba(...) 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorRGB_AIntAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(reRGB_AInt)];
@@ -204,6 +263,11 @@ function getColorRGB_AIntAndRanges(document) {
   return map_list;
 }
 
+/**
+ * 从文档中提取 rgba(...) 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorRGB_AFloatAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(reRGB_AFloat)];
@@ -234,6 +298,11 @@ function getColorRGB_AFloatAndRanges(document) {
   return map_list;
 }
 
+/**
+ * 从文档中提取 rgb(...) 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorNoPrefixRGB_AIntAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(NoPrefix_reRGB_AInt)];
@@ -263,6 +332,12 @@ function getColorNoPrefixRGB_AIntAndRanges(document) {
   }
   return map_list;
 }
+
+/**
+ * 从文档中提取 rgb(...) 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorNoPrefixRGB_AFloatAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(NoPrefix_reRGB_AFloat)];
@@ -293,6 +368,11 @@ function getColorNoPrefixRGB_AFloatAndRanges(document) {
   return map_list;
 }
 
+/**
+ * 从文档中提取 #RRGGBB 格式的颜色及其范围。
+ * @param {vscode.TextDocument} document - 文档对象。
+ * @returns {Array} - 包含颜色和范围的对象数组。
+ */
 function getColorHexAndRanges(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(reHEX)];

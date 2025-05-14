@@ -1,14 +1,29 @@
+/**
+ * @file runPython.js
+ * @description 提供与 Python 脚本交互的功能
+ */
+
 const vscode = require("vscode");
 const { spawn } = require("child_process");
 const path = require("path");
+
+/**
+ * Python 脚本文件路径
+ * @type {string}
+ */
 const pyFile = path.join(__dirname, "..", "python", "main.py");
 
+/**
+ * 获取 Python 脚本执行结果
+ * @param {vscode.TextDocument} document - 当前打开的文档
+ * @param {string} [options="get_classes_without_parent_init_call"] - 执行模式选项
+ * @returns {Promise<Array>} - Python 脚本执行结果的 Promise
+ */
 async function getPythonScriptResult(
   document,
   options = "get_classes_without_parent_init_call"
 ) {
   const args = [pyFile];
-
   args.push("--mode", options);
 
   return new Promise((resolve) => {
@@ -41,6 +56,10 @@ async function getPythonScriptResult(
   });
 }
 
+/**
+ * 检查 Python 环境是否可用
+ * @returns {Promise<boolean>} - Python 环境是否可用的 Promise
+ */
 function checkPythonEnvironment() {
   return new Promise((resolve) => {
     const py = spawn("python", ["--version"]);
