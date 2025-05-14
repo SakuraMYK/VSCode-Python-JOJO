@@ -28,9 +28,7 @@ class ColorPicker {
       const activeEditor = vscode.window.activeTextEditor;
 
       // 如果没有活动编辑器或文档不匹配，返回空数组，以提高性能
-      if (!activeEditor || activeEditor.document !== document) {
-        return [];
-      }
+      if (!activeEditor) return [];
 
       // 获取可见范围
       const visibleRange = activeEditor.visibleRanges;
@@ -38,7 +36,6 @@ class ColorPicker {
         this.lastVisibleRanges,
         visibleRange
       );
-
       if (
         this.lastDocument === document &&
         this.lastVersion === document.version &&
@@ -46,17 +43,22 @@ class ColorPicker {
       ) {
         return this.lastColorInformations;
       } else {
-        const colorAndRanges = getColorAndRanges(document);
+      const colorAndRanges = getColorAndRanges(document);
 
-        // 更新缓存
-        this.lastDocument = document;
-        this.version = document.version;
-        this.lastColorInformations = colorAndRanges.map(
-          (item) => new vscode.ColorInformation(item.range, item.color)
-        );
+      // 更新缓存
+      this.lastDocument = document;
+      this.version = document.version;
+      this.lastColorInformations = colorAndRanges.map(
+        (item) => new vscode.ColorInformation(item.range, item.color)
+      );
 
-        return this.lastColorInformations;
+      return this.lastColorInformations;
       }
+
+      // const colorAndRanges = getColorAndRanges(document);
+      // return colorAndRanges.map(
+      //   (item) => new vscode.ColorInformation(item.range, item.color)
+      // );
     } catch (error) {
       console.error(error);
       return []; // 返回空数组表示没有颜色信息

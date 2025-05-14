@@ -53,7 +53,7 @@ function checkPythonEnvironment() {
     py.stderr.on("data", (data) => {
       stderr += data;
     });
-    py.on("close", (code) => {
+    py.on("close", () => {
       if (stderr) {
         vscode.window.showErrorMessage(stderr);
         vscode.window.showErrorMessage(
@@ -61,7 +61,10 @@ function checkPythonEnvironment() {
         );
         resolve(false);
       } else {
-        vscode.window.showInformationMessage("插件 Python-Ex 已激活", stdout);
+        vscode.window.showInformationMessage(
+          "插件 Python-Ex-JOJO 已启用",
+          stdout
+        );
         resolve(true);
       }
     });
