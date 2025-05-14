@@ -125,10 +125,19 @@ class Range:
                         self._imports_range_map[name.name] = (s, e)
             elif isinstance(node, ast.ImportFrom):
                 for name in node.names:
-                    if name.name != "*":
-                        s = self.index_of_text(name.lineno, name.col_offset)
-                        e = s + len(name.name)
-                        self._imports_range_map[name.name] = (s, e)
+                    if name.asname:
+                        line_start = self.index_of_text(name.lineno, name.col_offset)
+                        if exp := re.match(r"(.*?as\s+)\w+", self._text[line_start:]):
+                            s = line_start + exp.group(1).__len__()
+                        else:
+                            s = self._text.find(name.asname, line_start)
+                        e = s + len(name.asname)
+                        self._imports_range_map[name.asname] = (s, e)
+                    else:
+                        if name.name != "*":
+                            s = self.index_of_text(name.lineno, name.col_offset)
+                            e = s + len(name.name)
+                            self._imports_range_map[name.name] = (s, e)
 
     def index_of_text(self, lineno: int, col_offset: int) -> int:
         """
@@ -147,10 +156,13 @@ class Range:
 
 
 if __name__ == "__main__":
-    with open("f:/下载/main.py", "r", encoding="utf-8") as f:
+    py = "f:/下载/main.py"
+    py = "f:/下载/dropdown.py"
+    with open(py, "r", encoding="utf-8") as f:
         text = f.read()
 
-    # rg = Range(text)
+    rg = Range(text)
     # print(rg.get_classes())
     # print(rg.get_import_modules())
     # print(rg.get_classes_without_parent_init_call())
+    print(rg.get_modules_with_name_conflicts())
