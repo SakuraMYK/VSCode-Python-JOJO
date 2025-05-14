@@ -1,0 +1,41 @@
+{
+  "name": "python-ex",
+  "displayName": "python_ExJOJO",
+  "description": "我的Python插件",
+  "version": "0.0.1",
+  "icon": "images/ai.png",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:python"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "python-ex.showColorPicker",
+        "title": "python-ex.showColorPicker"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.99.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.23.0"
+  },
+  "dependencies": {
+    "pyright": "^1.1.400"
+  }
+}
