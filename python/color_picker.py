@@ -77,7 +77,7 @@ class ColorPicker:
             to=0,
             resolution=0.01,
             orient=VERTICAL,
-            showvalue=0,
+            showvalue=False,
             command=self._on_value_change,
             length=self.canvas_size,
             troughcolor="#3b5191",
@@ -231,7 +231,7 @@ class ColorPicker:
         if self.display_mode == "hex":
             self._result = f"#{r:02X}{g:02X}{b:02X}"
         else:
-            self._result = f'rgb({r}, {g}, {b})'
+            self._result = f"rgb({r}, {g}, {b})"
         self.root.destroy()
 
     def _set_color_from_input(self, color):
@@ -264,4 +264,5 @@ if __name__ == "__main__":
     # ColorPicker("#dfdfff")
     picker = ColorPicker((255, 136, 0))
     import json
+
     print(json.dumps(picker.get_result()))

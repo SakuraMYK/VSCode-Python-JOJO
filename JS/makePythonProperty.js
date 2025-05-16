@@ -11,8 +11,10 @@ async function makePythonProperty(document, range) {
     new vscode.Range(classStartLine, 0, classEndLine, 0)
   );
 
+  const selectedText = editor.document.getText(editor.selection);
+
   const reSelfProperty = /\s*self\s*\.\s*_(\w+)\s*[:\w\[\],\.]*\s*=\s*/g;
-  const matches = [...document.getText().matchAll(reSelfProperty)];
+  const matches = [...selectedText.matchAll(reSelfProperty)];
   if (matches.length === 0) return;
 
   let pythonCode = "";
@@ -34,7 +36,6 @@ async function makePythonProperty(document, range) {
     def ${name}(self):
         return self._${name}
     `;
-      console.log("未找到 rePropertyFunc ", name, rePropertyFunc);
     }
     if (!text.match(rePropertySetterFunc)) {
       pythonCode += `
@@ -42,17 +43,18 @@ async function makePythonProperty(document, range) {
     def ${name}(self, value):
         self._${name} = value
     `;
-      console.log("未找到 rePropertySetterFunc", name, rePropertySetterFunc);
     }
   }
 
-  if (!pythonCode) return;
-
-  const code = pythonCode + "\n";
+  if (!pythonCode) {
+    vscode.window.showInformationMessage("已存在对应属性");
+    return;
+  }
 
   await editor.edit((editBuilder) => {
-    editBuilder.insert(new vscode.Position(classEndLine, 0), code);
+    editBuilder.insert(new vscode.Position(classEndLine, 0), pythonCode + "\n");
   });
+  vscode.window.showInformationMessage("已添加属性");
 }
 
 function getClassStartLine(document, range) {
