@@ -46,6 +46,8 @@ async function checkModulesWithNameConflicts(document) {
     document,
     "get_modules_with_name_conflicts"
   );
+  if (!ranges) return [];
+
   const diagnostics = [];
   for (const item of ranges) {
     const d_class = new vscode.Diagnostic(
@@ -74,6 +76,7 @@ async function checkUninitializedInherited(document) {
     document,
     "get_classes_without_parent_init_call"
   );
+  if (!ranges) return [];
   const diagnostics = [];
   for (const item of ranges) {
     const diagnostic = new vscode.Diagnostic(

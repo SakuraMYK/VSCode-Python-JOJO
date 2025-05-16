@@ -11,7 +11,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:python"
+    "onLanguage:python",
+    "onCommand:python-ex.makePythonProperty"
   ],
   "main": "./extension.js",
   "contributes": {
