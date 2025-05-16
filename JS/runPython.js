@@ -76,14 +76,11 @@ function checkPythonEnvironment() {
       if (stderr) {
         vscode.window.showErrorMessage(stderr);
         vscode.window.showErrorMessage(
-          "插件需要Python环境，请安装Python并配置环境变量"
+          "The plugin requires a Python environment. Please install Python and configure the environment variables"
         );
         resolve(false);
       } else {
-        vscode.window.showInformationMessage(
-          "插件 Python-Ex-JOJO 已启用",
-          stdout
-        );
+        vscode.window.showInformationMessage("Plugin enabled", stdout);
         resolve(true);
       }
     });
