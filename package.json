@@ -1,9 +1,9 @@
 {
   "name": "python-ex",
-  "displayName": "python_ExJOJO",
-  "description": "我的Python插件",
+  "displayName": "Python JOJO DevTools",
+  "description": "Detects Python code issues like loop var conflicts, missing init calls, and offers a color picker.",
   "version": "0.0.1",
-  "icon": "images/ai.png",
+  "icon": "images/blue.png",
   "engines": {
     "vscode": "^1.99.0"
   },
@@ -38,5 +38,9 @@
   },
   "dependencies": {
     "pyright": "^1.1.400"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SakuraMYK/VSCode-Python-JOJO.git"
   }
 }
