@@ -58,11 +58,11 @@ async function activate(context) {
         // 1. 选区非空时，添加自定义操作
         if (!range.isEmpty) {
           const makeProperty = new vscode.CodeAction(
-            "生成Python property",
+            '"_"内部属性生成Property',
             vscode.CodeActionKind.QuickFix
           );
           makeProperty.command = {
-            title: "生成Python property",
+            title: "类内部属性生成Property",
             command: "python-ex.makePythonProperty",
             arguments: [document, range],
           };

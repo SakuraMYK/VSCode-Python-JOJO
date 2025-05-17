@@ -5,7 +5,11 @@ async function makePythonProperty(document, range) {
   if (!editor) return;
 
   const classStartLine = getClassStartLine(document, range);
-  if (!classStartLine) return;
+  if (!classStartLine) {
+    vscode.window.showErrorMessage("No class found");
+    return;
+  }
+
   const classEndLine = getClassEndLine(document, classStartLine);
   const text = document.getText(
     new vscode.Range(classStartLine, 0, classEndLine, 0)
@@ -13,9 +17,12 @@ async function makePythonProperty(document, range) {
 
   const selectedText = editor.document.getText(editor.selection);
 
-  const reSelfProperty = /\s*self\s*\.\s*_(\w+)\s*[:\w\[\],\.]*\s*=\s*/g;
+  const reSelfProperty = /\s*self\s*\.\s*_(\w+)\s*[:\w\[\],\.\s]*=\s*/g;
   const matches = [...selectedText.matchAll(reSelfProperty)];
-  if (matches.length === 0) return;
+  if (matches.length === 0) {
+    vscode.window.showInformationMessage('需要以"_"开头的内部属性');
+    return;
+  }
 
   let pythonCode = "";
 
@@ -47,14 +54,33 @@ async function makePythonProperty(document, range) {
   }
 
   if (!pythonCode) {
-    vscode.window.showInformationMessage("已存在对应属性");
+    vscode.window.showInformationMessage("已存在对应property");
     return;
   }
 
+  const insertPosition = new vscode.Position(classEndLine, 0);
+
   await editor.edit((editBuilder) => {
-    editBuilder.insert(new vscode.Position(classEndLine, 0), pythonCode + "\n");
+    editBuilder.insert(insertPosition, pythonCode + "\n");
   });
-  vscode.window.showInformationMessage("已添加属性");
+
+  // 计算插入代码的结束位置
+  const insertedLines = pythonCode.split("\n").length;
+  const endPosition = new vscode.Position(
+    classEndLine + insertedLines - 1,
+    document.lineAt(classEndLine + insertedLines - 1).text.length
+  );
+
+  // 创建一个选择区域来高亮显示新插入的代码
+  editor.selection = new vscode.Selection(insertPosition, endPosition);
+
+  // 将视图滚动到插入区域
+  editor.revealRange(
+    new vscode.Range(insertPosition, endPosition),
+    vscode.TextEditorRevealType.InCenter
+  );
+
+  vscode.window.showInformationMessage("已添加property");
 }
 
 function getClassStartLine(document, range) {
