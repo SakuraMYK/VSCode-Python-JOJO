@@ -47,7 +47,7 @@ class Range:
                         ):
                             # 检查是否调用了父类初始化方法
                             if re.search(
-                                r"super\s*\(\s*\)\s*\.\s*__init__\s*\([\s\w,=]*+\)",
+                                r"super\s*\(\s*\)\s*\.\s*__init__\s*\(.*?\)",
                                 self._text[s:e],
                             ):
                                 break
