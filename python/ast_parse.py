@@ -47,7 +47,7 @@ class Range:
                         ):
                             # 检查是否调用了父类初始化方法
                             if re.search(
-                                r"super\s*\(\s*\)\s*\.\s*__init__\s*\([\s\w,]*+\)",
+                                r"super\s*\(\s*\)\s*\.\s*__init__\s*\([\s\w,=]*+\)",
                                 self._text[s:e],
                             ):
                                 break
@@ -81,7 +81,7 @@ class Range:
         :return: 包含类和导入模块范围的列表
         """
         if self._tree is None:
-            return
+            return []
         self._get_classes_name_and_range()
         self._get_imports_name_and_range()
         return [
@@ -158,11 +158,12 @@ class Range:
 if __name__ == "__main__":
     py = "f:/下载/main.py"
     py = "f:/下载/dropdown.py"
+    py = "F:\下载\dropdown copy.py"
     with open(py, "r", encoding="utf-8") as f:
         text = f.read()
 
     rg = Range(text)
     # print(rg.get_classes())
     # print(rg.get_import_modules())
-    # print(rg.get_classes_without_parent_init_call())
-    print(rg.get_modules_with_name_conflicts())
+    print(rg.get_classes_without_parent_init_call())
+    # print(rg.get_modules_with_name_conflicts())
