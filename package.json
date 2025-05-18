@@ -1,6 +1,7 @@
 {
-  "name": "python-ex",
-  "displayName": "Python JOJO DevTools",
+  "publisher": "PyJOJO",
+  "name": "pycode-jojo",
+  "displayName": "PyCodeJOJO",
   "description": "Detects Python code issues like loop var conflicts, missing init calls, and offers a color picker.",
   "version": "0.0.1",
   "icon": "images/blue.png",
