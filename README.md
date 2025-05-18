@@ -64,8 +64,8 @@
 - **English Usage Instructions**  
   1. After installing the plugin, open a file containing Python code.
   2. The plugin will automatically detect potential issues in the code and display warning messages in the editor.
-  3. For issues where the parent class initialization method is not called, the plugin will provide a quick fix option to insert `super().__init__()`.
-  4. For unused imports, the plugin will provide a quick fix option to delete the unused imports.
+  3. For issues where the parent class initialization method is not called, the plugin will provide a quick fix option to insert `super().__init__()`.  
+  4. For unused imports, the plugin will provide a quick fix option to delete the unused imports.  
   5. To use the color picker, place the cursor over an existing color value (e.g., `(255, 136, 0)` or `#FF8800`), then activate the command provided by the plugin. A color picker window will pop up, supporting color picking and switching between RGB, HEX, and rgba formats.
 
 ## Requirements
@@ -89,20 +89,3 @@ Fixed issue #.
 ### 1.1.0
 
 Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-- Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-- Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-- Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-- [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-- [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
