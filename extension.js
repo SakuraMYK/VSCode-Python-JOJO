@@ -15,12 +15,17 @@ const { checkPythonEnvironment } = require("./JS/runPython.js");
 
 const { makePythonProperty } = require("./JS/makePythonProperty.js");
 
+const {
+  checkAttributeExistence,
+} = require("./JS/attributeExistenceChecker.js");
+
 const colorPicker = new ColorPicker();
 
 async function checkPythonCode(document) {
   if (document.languageId !== "python") {
     return;
-  }
+  } 
+  checkAttributeExistence(document);
 
   // 获取 VS Code 的诊断信息
   const diagnostics = vscode.languages.getDiagnostics(document.uri);
