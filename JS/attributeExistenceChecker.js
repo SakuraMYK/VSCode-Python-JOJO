@@ -14,16 +14,19 @@ function readFileContent(filePath) {
 
 // 修改 checkAttributeExistence 函数，添加文件读取功能
 function checkAttributeExistence(document) {
-    const filePath = 'D:\\python3\\Lib\\site-packages\\pyglet\\shapes.py'; // 文件路径
+    const filePath = 'D:/python3/Lib/site-packages/pyglet/shapes.py'; // 文件路径
     const fileContent = readFileContent(filePath); // 读取文件内容
 
     if (fileContent) {
-        console.log('文件内容已读取：');
-        console.log(fileContent); // 打印文件内容
-        // 这里可以添加对文件内容的进一步处理逻辑
+        const reModule1 = /from/g;
+        
     } else {
         console.log('无法读取文件内容。');
     }
+}
+
+function functionName (parameters) {
+    
 }
 
 // 导出函数，以便在其他模块中使用

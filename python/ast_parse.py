@@ -21,8 +21,19 @@ class Range:
 
         try:
             self._tree = ast.parse(text)
+            self._add_parent_for_node(self._tree)
         except SyntaxError as e:
             ...
+
+    def _add_parent_for_node(self, node: ast.AST, parent=None) -> None:
+        """
+        为 AST 节点添加父节点引用。方便直接访问父节点。
+
+        :param node: AST 节点
+        """
+        node.parent = parent
+        for child in ast.iter_child_nodes(node):
+            self._add_parent_for_node(child)
 
     def get_classes_without_parent_init_call(self) -> list[dict[str, tuple[int, int]]]:
         """
@@ -49,6 +60,7 @@ class Range:
                             if re.search(
                                 r"super\s*\(\s*\)\s*\.\s*__init__\s*\(.*?\)",
                                 self._text[s:e],
+                                re.DOTALL,
                             ):
                                 break
                             else:
@@ -154,17 +166,112 @@ class Range:
         index += col_offset
         return index
 
+    def get_all_attr(self) -> list[dict]:
+        """
+        获取文件中所有的属性调用及其调用轨迹，包括所属的类信息。
+
+        :return: 包含属性调用信息的字典列表
+        """
+        if self._tree is None:
+            return []
+
+        attr_calls = []
+
+        def traverse_node(node):
+            """递归遍历AST节点，收集属性调用"""
+            # 如果是属性访问节点，提取完整的属性路径
+            if isinstance(node, ast.Attribute):
+                attr_path = self.get_attr(node)
+                if attr_path:
+                    # 查找该属性所属的类
+                    parent_class = self._find_parent_class(node)
+
+                    # 创建包含属性路径和父类信息的字典
+                    attr_info = {
+                        "path": attr_path,
+                        "line": node.lineno,
+                        "col": node.col_offset,
+                    }
+
+                    if parent_class:
+                        attr_info["parent_class"] = parent_class
+
+                    # 避免重复添加
+                    if not any(info["path"] == attr_path for info in attr_calls):
+                        attr_calls.append(attr_info)
+
+            # 递归处理所有子节点
+            for child in ast.iter_child_nodes(node):
+                traverse_node(child)
+
+        # 从AST根节点开始遍历
+        traverse_node(self._tree)
+        return attr_calls
+
+    def get_attr(self, node: ast.AST) -> str:
+        """
+        递归构建属性访问的完整路径。
+
+        :param node: AST节点
+        :return: 属性访问的完整路径字符串
+        """
+        if isinstance(node, ast.Attribute):
+            # 递归获取父属性路径
+            parent_attr = self.get_attr(node.value)
+            if parent_attr and node.attr != "setter":
+                return f"{parent_attr}.{node.attr}"
+            else:
+                return node.attr
+        elif isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Call):
+            # 处理函数调用情况
+            return self.get_attr(node.func)
+        elif isinstance(node, ast.Subscript):
+            # 处理下标访问情况，如 obj['key'] 或 arr[0]
+            base = self.get_attr(node.value)
+            return base if base else ""
+        else:
+            # 其他类型节点不构成属性路径的一部分
+            return ""
+
+    def _find_parent_class(self, node):
+        """
+        查找一个节点所属的类。
+
+        :param node: AST节点
+        :return: 类名或None
+        """
+        # 从当前节点开始向上查找
+        current = node
+        while hasattr(current, "parent") and current.parent:
+            current = current.parent
+            if isinstance(current, ast.ClassDef):
+                return current.name
+
+        # 如果通过父节点引用找不到，尝试通过位置关系查找
+        for cls_node in ast.walk(self._tree):
+            if isinstance(cls_node, ast.ClassDef):
+                # 检查节点是否在类定义的范围内
+                if cls_node.lineno <= node.lineno and (
+                    hasattr(cls_node, "end_lineno")
+                    and node.lineno <= cls_node.end_lineno
+                ):
+                    return cls_node.name
+
+        return None
+
 
 if __name__ == "__main__":
     py = "f:/下载/main.py"
     py = "f:/下载/dropdown.py"
     py = "F:\下载\dropdown copy.py"
+    py = r"F:\下载\button.py"
     with open(py, "r", encoding="utf-8") as f:
         text = f.read()
 
     rg = Range(text)
-    # print(rg.get_classes())
-    # print(rg.get_import_modules())
-    print(rg.get_classes_without_parent_init_call())
-    # print(rg.get_modules_with_name_conflicts())
-   
+    attr_calls = rg.get_all_attr()
+    for attr in attr_calls:
+        parent_class = attr.get("parent_class", "未知")
+        print(f"属性路径: {attr['path']}, 所属类: {parent_class}, 行号: {attr['line']}")
