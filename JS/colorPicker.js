@@ -120,18 +120,27 @@ class ColorPicker {
     const hexG = intG.toString(16).padStart(2, "0");
     const hexB = intB.toString(16).padStart(2, "0");
 
+    const intA = Math.round(color.alpha * 255);
+
     if (/rgba/.test(string)) {
-      return `rgba(${intR}, ${intG}, ${intB}, ${color.alpha})`;
+      return `rgba(${intR}, ${intG}, ${intB}, ${intA})`;
     } else if (/rgb/.test(string)) {
-      return `rgb(${intR}, ${intG}, ${intB})`;
+      if (color.alpha !== 1) {
+        return `rgba(${intR}, ${intG}, ${intB}, ${intA})`;
+      } else {
+        return `rgb(${intR}, ${intG}, ${intB})`;
+      }
     } else if (/#/.test(string)) {
       return `#${hexR}${hexG}${hexB}`;
     } else {
-      const count = string.split(",").length;
-      if (count === 4) {
-        return `(${intR}, ${intG}, ${intB}, ${color.alpha})`;
+      if (string.split(",").length === 4) {
+        return `(${intR}, ${intG}, ${intB}, ${intA})`;
       } else {
-        return `(${intR}, ${intG}, ${intB})`;
+        if (color.alpha !== 1) {
+          return `(${intR}, ${intG}, ${intB}, ${intA})`;
+        } else {
+          return `(${intR}, ${intG}, ${intB})`;
+        }
       }
     }
   }
@@ -175,8 +184,8 @@ function getColorAndRanges(document) {
   const hexRanges = getColorHexAndRanges(document);
   // 获取颜色和范围（RGB）
   const rgbRanges = getColorRGBAndRanges(document);
-  // 获取颜色和范围（RGBA，浮点数）
   const rgbaRanges = [
+    // 获取颜色和范围（RGBA，浮点数）
     ...getColorRGB_AFloatAndRanges(document),
     // 获取颜色和范围（RGBA，整数）
     ...getColorRGB_AIntAndRanges(document),
@@ -185,7 +194,7 @@ function getColorAndRanges(document) {
   // 定义范围数组
   const ranges = [];
   // 将十六进制范围添加到范围数组中
-  ranges.push(...hexRanges);
+  ranges.push(...hexRanges, ...rgbRanges, ...rgbaRanges);
 
   // 先匹配带 rgb | rgba 前缀的颜色 避免重复匹配问题
   if (rgbRanges.length === 0)
