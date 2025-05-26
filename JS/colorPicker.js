@@ -127,7 +127,12 @@ class ColorPicker {
     } else if (/#/.test(string)) {
       return `#${hexR}${hexG}${hexB}`;
     } else {
-      return `(${intR}, ${intG}, ${intB})`;
+      const count = string.split(",").length;
+      if (count === 4) {
+        return `(${intR}, ${intG}, ${intB}, ${color.alpha})`;
+      } else {
+        return `(${intR}, ${intG}, ${intB})`;
+      }
     }
   }
 
