@@ -169,17 +169,36 @@ class ColorPicker {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
+// 获取颜色和范围
 function getColorAndRanges(document) {
-  const colorAndRanges = [
-    ...getColorNoPrefixRGBAndRanges(document),
-    ...getColorNoPrefixRGB_AIntAndRanges(document),
-    ...getColorNoPrefixRGB_AFloatAndRanges(document),
+  // 获取颜色和范围（十六进制）
+  const hexRanges = getColorHexAndRanges(document);
+  // 获取颜色和范围（RGB）
+  const rgbRanges = getColorRGBAndRanges(document);
+  // 获取颜色和范围（RGBA，浮点数）
+  const rgbaRanges = [
     ...getColorRGB_AFloatAndRanges(document),
+    // 获取颜色和范围（RGBA，整数）
     ...getColorRGB_AIntAndRanges(document),
-    ...getColorRGBAndRanges(document),
-    ...getColorHexAndRanges(document),
   ];
-  return colorAndRanges;
+
+  // 定义范围数组
+  const ranges = [];
+  // 将十六进制范围添加到范围数组中
+  ranges.push(...hexRanges);
+
+  // 先匹配带 rgb | rgba 前缀的颜色 避免重复匹配问题
+  if (rgbRanges.length === 0)
+    ranges.push(...getColorNoPrefixRGBAndRanges(document));
+
+  if (rgbaRanges.length === 0)
+    ranges.push(
+      ...getColorNoPrefixRGB_AFloatAndRanges(document),
+      ...getColorNoPrefixRGB_AIntAndRanges(document)
+    );
+
+  // 返回范围数组
+  return ranges;
 }
 
 /**
