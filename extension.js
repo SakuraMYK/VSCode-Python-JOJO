@@ -22,7 +22,7 @@ const { applyTheme } = require("./JS/theme.js");
 let enable_CheckForLoopVariableConflict = true;
 let enable_CheckImportVsLocalClassConflict = true;
 let enable_CheckMissingSuperInit = true;
-let enable_PropertyGenerator = true;
+let enable_ColorPicker = true;
 
 async function checkPythonCode(document) {
   console.error("Checking Python code...");
@@ -64,10 +64,26 @@ async function activate(context) {
     return;
   }
 
+  // 读取settings.json中的配置，如果无配置则使用package.json中的默认配置
   const c = vscode.workspace.getConfiguration("pycodejojo");
-  enable_CheckForLoopVariableConflict = c.get("checkForLoopVariables");
-  enable_CheckImportVsLocalClassConflict = c.get("checkModuleNameConflicts");
+  enable_CheckForLoopVariableConflict = c.get("checkForLoopVariableConflict");
+  enable_CheckImportVsLocalClassConflict = c.get(
+    "checkImportVsLocalClassConflict"
+  );
   enable_CheckMissingSuperInit = c.get("checkMissingSuperInit");
+  enable_ColorPicker = c.get("enableColorPicker");
+
+  console.error(
+    enable_CheckForLoopVariableConflict,
+    enable_CheckImportVsLocalClassConflict,
+    enable_CheckMissingSuperInit
+  );
+
+  if (enable_ColorPicker) {
+    context.subscriptions.push(
+      vscode.languages.registerColorProvider("python", colorPicker)
+    );
+  }
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
@@ -76,21 +92,32 @@ async function activate(context) {
         "pycodejojo.theme": () => {
           applyTheme(config.get("theme"));
         },
-        "pycodejojo.CheckForLoopVariableConflict": () => {
+        "pycodejojo.checkForLoopVariableConflict": () => {
           enable_CheckForLoopVariableConflict = config.get(
-            "checkForLoopVariables"
+            "checkForLoopVariableConflict"
           );
         },
-        "pycodejojo.checkModuleNameConflicts": () => {
+        "pycodejojo.checkImportVsLocalClassConflict": () => {
           enable_CheckImportVsLocalClassConflict = config.get(
-            "checkModuleNameConflicts"
+            "checkImportVsLocalClassConflict"
           );
         },
         "pycodejojo.checkMissingSuperInit": () => {
           enable_CheckMissingSuperInit = config.get("checkMissingSuperInit");
         },
-        "pycodejojo.enablePropertyGenerator": () => {
-          enable_PropertyGenerator = config.get("enablePropertyGenerator");
+        "pycodejojo.enableColorPicker": () => {
+          enable_ColorPicker = config.get("enableColorPicker");
+          // 提示用户重启
+          vscode.window
+            .showInformationMessage(
+              "ColorPicker setting changed. Please reload the window to take effect.",
+              "Restart Extension"
+            )
+            .then((selection) => {
+              if (selection === "Restart Extension") {
+                vscode.commands.executeCommand("workbench.action.restartExtensionHost");
+              }
+            });
         },
       };
 
@@ -102,7 +129,6 @@ async function activate(context) {
       });
     }),
 
-    vscode.languages.registerColorProvider("python", colorPicker),
     vscode.languages.registerCodeActionsProvider("python", {
       provideCodeActions(document, range, context) {
         const actions = [];

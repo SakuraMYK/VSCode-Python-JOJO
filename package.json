@@ -43,15 +43,15 @@
         },
         "pycodejojo.enableColorPicker": {
           "type": "boolean",
-          "default": true,
-          "description": "启用颜色选择器功能"
+          "default": false,
+          "description": "启用颜色选择器"
         },
         "pycodejojo.checkForLoopVariableConflict": {
           "type": "boolean",
           "default": true,
           "description": "检查 for 循环变量冲突"
         },
-        "pycodejojo.checkModuleNameConflicts": {
+        "pycodejojo.checkImportVsLocalClassConflict": {
           "type": "boolean",
           "default": true,
           "description": "检查模块名称覆盖冲突"
@@ -60,11 +60,6 @@
           "type": "boolean",
           "default": true,
           "description": "检查未初始化的继承类"
-        },
-        "pycodejojo.enablePropertyGenerator": {
-          "type": "boolean",
-          "default": true,
-          "description": "启用 property getter/setter 生成器"
         }
       }
     }
