@@ -1,0 +1,342 @@
+{
+    "name": "PyCodeJOJO Dark",
+    "type": "dark",
+    "colors": {
+        "editor.background": "#222222",
+    },
+    "tokenColors": [
+        {
+            "name": "Default Text",
+            "scope": "source.python",
+            "settings": {
+                "foreground": "#9d9d9d"
+            }
+        },
+        {
+            "name": "Exception",
+            "scope": "support.type.exception.python",
+            "settings": {
+                "fontStyle": "bold ",
+                "foreground": "#ff19009a"
+            }
+        },
+        {
+            "name": "Keyword Class",
+            "scope": "storage.type.class.python",
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#ff8a1e"
+            }
+        },
+        {
+            "name": "Keyword Def",
+            "scope": "storage.type.function.python",
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#049f9f"
+            }
+        },
+        {
+            "name": "DecNumer",
+            "scope": "constant.numeric.dec.python",
+            "settings": {
+                "foreground": "#ab7d46"
+            }
+        },
+        {
+            "name": "Caps Variables",
+            "scope": "constant.other.caps.python",
+            "settings": {
+                "foreground": "#9f8a04"
+            }
+        },
+        {
+            "name": "Keywords Control",
+            "scope": [
+                "keyword.control.flow.python",
+                "keyword.control.import.python"
+            ],
+            "settings": {
+                "fontStyle": "bold italic",
+                "foreground": "#dad060"
+            }
+        },
+        {
+            "name": "Class Names",
+            "scope": [
+                "entity.name.type.class.python"
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#ef5cb9d5"
+            }
+        },
+        {
+            "name": "Class methods __init__",
+            "scope": [
+                "support.function.magic.python",
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#49cfedd5"
+            }
+        },
+        {
+            "name": "String",
+            "scope": "string.quoted.single.python",
+            "settings": {
+                "foreground": "#49eda0c7"
+            }
+        },
+        {
+            "name": "List",
+            "scope": [
+                "meta.item-access.arguments.python",
+                "meta.item-access.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#9bc709"
+            }
+        },
+        {
+            "name": "Keyword Self",
+            "scope": [
+                "variable.parameter.function.language.special.self.python",
+                "variable.language.special.self.python"
+            ],
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#ff45c7b6"
+            }
+        },
+        {
+            "name": "Decorator",
+            "scope": "meta.function.decorator.python",
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#ff5e1ece"
+            }
+        },
+        {
+            "name": "Function Name",
+            "scope": "entity.name.function.python",
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#30d2fbbd"
+            }
+        },
+        {
+            "name": "Function Std",
+            "scope": "support.function.builtin.python",
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#5cefe5"
+            }
+        },
+        {
+            "name": "Comment",
+            "scope": "comment.line.number-sign.python",
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#6b9955c1"
+            }
+        },
+        {
+            "name": "Operator Assignment",
+            "scope": [
+                "keyword.operator.assignment.python",
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#58b1e8"
+            }
+        },
+        {
+            "name": "Operator Arithmetic",
+            "scope": [
+                "keyword.operator.arithmetic.python",
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#58e8b8b4"
+            }
+        },
+        {
+            "name": "Punctuation Arguments End",
+            "scope": [
+                "punctuation.separator.annotation.python",
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#58e8b8ac"
+            }
+        },
+        {
+            "name": "Punctuation Result",
+            "scope": [
+                "punctuation.separator.annotation.result.python",
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#e85858ac"
+            }
+        },
+        {
+            "name": "Multi-line String",
+            "scope": [
+                "string.quoted.docstring.multi.python"
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#e6e858ad"
+            }
+        },
+        {
+            "name": "Type",
+            "scope": [
+                "meta.function.parameters.python"
+            ],
+            "settings": {
+                "fontStyle": "bold italic",
+                "foreground": "#b3b363ad"
+            }
+        },
+        {
+            "name": "Type",
+            "scope": [
+                "variable.parameter.function.language.special.cls.python",
+                "variable.language.special.cls.python"
+            ],
+            "settings": {
+                "fontStyle": "bold italic",
+                "foreground": "#f6ad9bad"
+            }
+        },
+        {
+            "name": "Type",
+            "scope": [
+                "punctuation.separator.colon.python"
+            ],
+            "settings": {
+                "fontStyle": "bold  ",
+                "foreground": "#f6ad9bad"
+            }
+        },
+        {
+            "name": "Dict Key Punctuation",
+            "scope": [
+                "punctuation.separator.dict.python"
+            ],
+            "settings": {
+                "fontStyle": "bold italic",
+                "foreground": "#ef6d42"
+            }
+        },
+        {
+            "name": "Element Punctuation",
+            "scope": [
+                "punctuation.separator.element.python"
+            ],
+            "settings": {
+                "fontStyle": "italic",
+                "foreground": "#37a3bc"
+            }
+        },
+        {
+            "name": "Element Punctuation",
+            "scope": [
+                "meta.function-call.arguments.python"
+            ],
+            "settings": {
+                "fontStyle": "",
+                "foreground": "#b7a5b7"
+            }
+        },
+        {
+            "name": "Variable Parameter",
+            "scope": [
+                "variable.parameter.function-call.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#e85656ea"
+            }
+        },
+        {
+            "name": "Variable Parameter",
+            "scope": [
+                "variable.parameter.function.language.python"
+            ],
+            "settings": {
+                "fontStyle": "bold",
+                "foreground": "#e85656cc"
+            }
+        },
+        {
+            "name": "function-call",
+            "scope": [
+                "meta.function-call.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#56e8aed4"
+            }
+        },
+        {
+            "name": "operator.logical",
+            "scope": [
+                "keyword.operator.logical.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#56e8aed4"
+            }
+        },
+        {
+            "scope": [
+                "keyword.operator.comparison.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#6bcf4fdf"
+            }
+        },
+        {
+            "scope": [
+                "keyword.operator.bitwise.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#4fbccfca"
+            }
+        },
+        {
+            "scope": [
+                "entity.other.inherited-class.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#4fbccfca"
+            }
+        },
+        {
+            "scope": [
+                "constant.language.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#4fbccfca"
+            }
+        },
+        {
+            "scope": [
+                "punctuation.section.function.begin.python"
+            ],
+            "settings": {
+                "fontStyle": "italic bold",
+                "foreground": "#4fbccfca"
+            }
+        },
+    ]
+}

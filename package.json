@@ -22,6 +22,13 @@
         "command": "python-ex.showColorPicker",
         "title": "python-ex.showColorPicker"
       }
+    ],
+    "themes": [
+      {
+        "label": "PyCodeJOJO Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/dark-color-theme.json"
+      }
     ]
   },
   "scripts": {
