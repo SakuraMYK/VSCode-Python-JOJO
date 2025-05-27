@@ -13,9 +13,11 @@ const { ColorPicker, forceRefreshColors } = require("./JS/colorPicker.js");
 
 const { checkPythonEnvironment } = require("./JS/runPython.js");
 
-const { makePythonProperty } = require("./JS/makePythonProperty.js");
+const { propertyGenerator } = require("./JS/propertyGenerator.js");
 
 const colorPicker = new ColorPicker();
+
+const config = vscode.workspace.getConfiguration("pycodejojo");
 
 async function checkPythonCode(document) {
   if (document.languageId !== "python") {
@@ -50,13 +52,11 @@ async function activate(context) {
     return;
   }
 
-  const config = vscode.workspace.getConfiguration("pythonjojo");
-  const enableTheme = config.get("enableTheme");
-
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      console.error("Configuration changed, reloading...",event);
-      if (event.affectsConfiguration("pythonjojo")) {
+      console.error("Configuration changed, reloading...", event);
+      if (event.affectsConfiguration("pycodejojo.theme")) {
+        console.error("get:", config.get("theme"));
       }
     }),
 
@@ -72,7 +72,7 @@ async function activate(context) {
           );
           makeProperty.command = {
             title: "类内部属性生成Property",
-            command: "python-ex.makePythonProperty",
+            command: "pycodejojo.propertyGenerator",
             arguments: [document, range],
           };
           actions.push(makeProperty);
@@ -127,9 +127,9 @@ async function activate(context) {
       }
     }),
     vscode.commands.registerCommand(
-      "python-ex.makePythonProperty",
+      "pycodejojo.propertyGenerator",
       (document, range) => {
-        makePythonProperty(document, range);
+        propertyGenerator(document, range);
       }
     )
   );

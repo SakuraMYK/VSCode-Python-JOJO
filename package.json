@@ -1,8 +1,8 @@
 {
   "publisher": "PyJOJO",
-  "name": "pycode-jojo",
+  "name": "pycodejojo",
   "displayName": "PyCodeJOJO",
-  "description": "Code checker + snippet inserter + color picker for Python developers.",
+  "description": "Python diagnostics, property generator, color picker and dark theme toolkit for enhanced VS Code development.",
   "version": "2025.5.5",
   "icon": "images/dark.png",
   "engines": {
@@ -12,8 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:python",
-    "onCommand:python-ex.makePythonProperty"
+    "onLanguage:python"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -27,15 +26,17 @@
     "configuration": {
       "title": "PyCodeJOJO",
       "properties": {
-        "pycodejojo.enableTheme": {
-          "type": "boolean",
-          "default": true,
-          "description": "启用 PyCodeJOJO 主题"
-        },
-        "pycodejojo.enableDiagnostics": {
-          "type": "boolean",
-          "default": true,
-          "description": "启用代码诊断功能"
+        "pycodejojo.theme": {
+          "type": "string",
+          "enum": [
+            "PyCodeJOJO Dark",
+            "PyCodeJOJO Light",
+            "PyCodeJOJO Blue",
+            "PyCodeJOJO Green",
+            "Disabled"
+          ],
+          "default": "PyCodeJOJO Dark",
+          "description": "选择 PyCodeJOJO 主题样式"
         },
         "pycodejojo.enableColorPicker": {
           "type": "boolean",
@@ -50,12 +51,17 @@
         "pycodejojo.checkModuleNameConflicts": {
           "type": "boolean",
           "default": true,
-          "description": "检查模块名称冲突"
+          "description": "检查模块名称覆盖冲突"
         },
         "pycodejojo.checkUninitializedInherited": {
           "type": "boolean",
           "default": true,
           "description": "检查未初始化的继承类"
+        },
+        "pycodejojo.makePythonProperties": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用 property getter/setter 生成器"
         }
       }
     }

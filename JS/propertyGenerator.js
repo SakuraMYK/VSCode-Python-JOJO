@@ -1,6 +1,6 @@
 const vscode = require("vscode");
 
-async function makePythonProperty(document, range) {
+async function propertyGenerator(document, range) {
   const editor = vscode.window.activeTextEditor;
   if (!editor) return;
 
@@ -109,4 +109,4 @@ function getClassEndLine(document, classStartLine) {
   return endLine;
 }
 
-module.exports = { makePythonProperty };
+module.exports = { propertyGenerator };
