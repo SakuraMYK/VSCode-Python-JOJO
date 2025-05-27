@@ -15,8 +15,6 @@ const { checkPythonEnvironment } = require("./JS/runPython.js");
 
 const { propertyGenerator } = require("./JS/propertyGenerator.js");
 
-const colorPicker = new ColorPicker();
-
 const { applyTheme } = require("./JS/theme.js");
 
 let enable_CheckForLoopVariableConflict = true;
@@ -81,7 +79,7 @@ async function activate(context) {
 
   if (enable_ColorPicker) {
     context.subscriptions.push(
-      vscode.languages.registerColorProvider("python", colorPicker)
+      vscode.languages.registerColorProvider("python", new ColorPicker())
     );
   }
 
@@ -115,7 +113,9 @@ async function activate(context) {
             )
             .then((selection) => {
               if (selection === "Restart Extension") {
-                vscode.commands.executeCommand("workbench.action.restartExtensionHost");
+                vscode.commands.executeCommand(
+                  "workbench.action.restartExtensionHost"
+                );
               }
             });
         },
