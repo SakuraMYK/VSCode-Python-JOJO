@@ -1,15 +1,22 @@
 const vscode = require("vscode");
+
 const reRGB = /rgb\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
+
 const NoPrefix_reRGB =
   /(?<!rgb)(?<!rgba)\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
-const NoPrefix_reRGB_AInt =
+
+const NoPrefix_reRGBA_Int =
   /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
-const NoPrefix_reRGB_AFloat =
+
+const NoPrefix_reRGBA_Float =
   /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1(\.0)?|0?\.\d+)\s*\)/gs;
-const reRGB_AInt =
+
+const reRGBA_Int =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
-const reRGB_AFloat =
+
+const reRGBA_Float =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1(\.0)?|0?\.\d+)\s*\)/gs;
+
 const reHEX = /#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/gs;
 
 /**
@@ -71,7 +78,7 @@ class ColorPicker {
       ) {
         return this.lastColorInformations;
       } else {
-        const colorAndRanges = getColorAndRanges(document);
+        const colorAndRanges = getColorAndRangeMaps(document);
 
         // 更新缓存
         this.lastDocument = document;
@@ -102,6 +109,25 @@ class ColorPicker {
     }
   }
 
+  /**
+   * 比较两个范围数组是否相等。
+   * @param {vscode.Range[]} ranges1 - 第一个范围数组。
+   * @param {vscode.Range[]} ranges2 - 第二个范围数组。
+   * @returns {boolean} - 如果两个范围数组相等，则返回 true；否则返回 false。
+   */
+  _areRangesEqual(ranges1, ranges2) {
+    if (ranges1.length !== ranges2.length) {
+      return false;
+    }
+
+    for (let i = 0; i < ranges1.length; i++) {
+      const r1 = ranges1[i];
+      const r2 = ranges2[i];
+      if (!rangesEqual(r1, r2)) return false;
+    }
+
+    return true;
+  }
   /**
    * 将颜色转换为字符串表示形式。
    * @param {object} context - 包含文档和范围的对象。
@@ -144,33 +170,15 @@ class ColorPicker {
       }
     }
   }
+}
 
-  /**
-   * 比较两个范围数组是否相等。
-   * @param {vscode.Range[]} ranges1 - 第一个范围数组。
-   * @param {vscode.Range[]} ranges2 - 第二个范围数组。
-   * @returns {boolean} - 如果两个范围数组相等，则返回 true；否则返回 false。
-   */
-  _areRangesEqual(ranges1, ranges2) {
-    if (ranges1.length !== ranges2.length) {
-      return false;
-    }
-
-    for (let i = 0; i < ranges1.length; i++) {
-      const r1 = ranges1[i];
-      const r2 = ranges2[i];
-      if (
-        r1.start.line !== r2.start.line ||
-        r1.start.character !== r2.start.character ||
-        r1.end.line !== r2.end.line ||
-        r1.end.character !== r2.end.character
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+function rangesEqual(range1, range2) {
+  return (
+    range1.start.line === range2.start.line &&
+    range1.start.character === range2.start.character &&
+    range1.end.line === range2.end.line &&
+    range1.end.character === range2.end.character
+  );
 }
 
 /**
@@ -179,35 +187,37 @@ class ColorPicker {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 // 获取颜色和范围
-function getColorAndRanges(document) {
-  // 获取颜色和范围（十六进制）
-  const hexRanges = getColorHexAndRanges(document);
-  // 获取颜色和范围（RGB）
-  const rgbRanges = getColorRGBAndRanges(document);
-  const rgbaRanges = [
-    // 获取颜色和范围（RGBA，浮点数）
-    ...getColorRGB_AFloatAndRanges(document),
-    // 获取颜色和范围（RGBA，整数）
-    ...getColorRGB_AIntAndRanges(document),
+function getColorAndRangeMaps(document) {
+  const hexMaps = getColorHexRangeMaps(document);
+  const rgbMaps = getColorRGBRangeMaps(document);
+  const rgbaMaps = [
+    ...getColorRGBA_Float_RangeMaps(document),
+    ...getColorRGBA_Int_RangeMaps(document),
   ];
 
-  // 定义范围数组
-  const ranges = [];
-  // 将十六进制范围添加到范围数组中
-  ranges.push(...hexRanges, ...rgbRanges, ...rgbaRanges);
+  const maps = [];
 
-  // 先匹配带 rgb | rgba 前缀的颜色 避免重复匹配问题
-  if (rgbRanges.length === 0)
-    ranges.push(...getColorNoPrefixRGBAndRanges(document));
+  maps.push(...hexMaps, ...rgbMaps, ...rgbaMaps);
 
-  if (rgbaRanges.length === 0)
-    ranges.push(
-      ...getColorNoPrefixRGB_AFloatAndRanges(document),
-      ...getColorNoPrefixRGB_AIntAndRanges(document)
-    );
+  for (const get of getColorNoPrefixRGBRangeMaps(document)) {
+    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+      maps.push(get);
+    }
+  }
 
-  // 返回范围数组
-  return ranges;
+  for (const get of getColorNoPrefixRGBA_Float_RangeMaps(document)) {
+    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+      maps.push(get);
+    }
+  }
+
+  for (const get of getColorNoPrefixRGBA_Int_RangeMaps(document)) {
+    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+      maps.push(get);
+    }
+  }
+
+  return maps;
 }
 
 /**
@@ -215,7 +225,7 @@ function getColorAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorRGBAndRanges(document) {
+function getColorRGBRangeMaps(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(reRGB)];
 
@@ -241,7 +251,7 @@ function getColorRGBAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorNoPrefixRGBAndRanges(document) {
+function getColorNoPrefixRGBRangeMaps(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(NoPrefix_reRGB)];
   for (const match of matches) {
@@ -266,9 +276,9 @@ function getColorNoPrefixRGBAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorRGB_AIntAndRanges(document) {
+function getColorRGBA_Int_RangeMaps(document) {
   const map_list = [];
-  const matches = [...document.getText().matchAll(reRGB_AInt)];
+  const matches = [...document.getText().matchAll(reRGBA_Int)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
@@ -301,9 +311,9 @@ function getColorRGB_AIntAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorRGB_AFloatAndRanges(document) {
+function getColorRGBA_Float_RangeMaps(document) {
   const map_list = [];
-  const matches = [...document.getText().matchAll(reRGB_AFloat)];
+  const matches = [...document.getText().matchAll(reRGBA_Float)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
@@ -336,9 +346,9 @@ function getColorRGB_AFloatAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorNoPrefixRGB_AIntAndRanges(document) {
+function getColorNoPrefixRGBA_Int_RangeMaps(document) {
   const map_list = [];
-  const matches = [...document.getText().matchAll(NoPrefix_reRGB_AInt)];
+  const matches = [...document.getText().matchAll(NoPrefix_reRGBA_Int)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
@@ -371,9 +381,9 @@ function getColorNoPrefixRGB_AIntAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorNoPrefixRGB_AFloatAndRanges(document) {
+function getColorNoPrefixRGBA_Float_RangeMaps(document) {
   const map_list = [];
-  const matches = [...document.getText().matchAll(NoPrefix_reRGB_AFloat)];
+  const matches = [...document.getText().matchAll(NoPrefix_reRGBA_Float)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
@@ -406,7 +416,7 @@ function getColorNoPrefixRGB_AFloatAndRanges(document) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-function getColorHexAndRanges(document) {
+function getColorHexRangeMaps(document) {
   const map_list = [];
   const matches = [...document.getText().matchAll(reHEX)];
   for (const match of matches) {
