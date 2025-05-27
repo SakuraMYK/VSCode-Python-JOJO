@@ -17,7 +17,7 @@ const { propertyGenerator } = require("./JS/propertyGenerator.js");
 
 const colorPicker = new ColorPicker();
 
-const config = vscode.workspace.getConfiguration("pycodejojo");
+const { applyTheme } = require("./JS/theme.js");
 
 async function checkPythonCode(document) {
   if (document.languageId !== "python") {
@@ -54,9 +54,10 @@ async function activate(context) {
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      console.error("Configuration changed, reloading...", event);
       if (event.affectsConfiguration("pycodejojo.theme")) {
-        console.error("get:", config.get("theme"));
+        applyTheme(
+          vscode.workspace.getConfiguration("pycodejojo").get("theme")
+        );
       }
     }),
 

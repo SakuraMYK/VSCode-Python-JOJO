@@ -20,7 +20,12 @@
       {
         "label": "PyCodeJOJO Dark",
         "uiTheme": "vs-dark",
-        "path": "./themes/dark-color-theme.json"
+        "path": "./themes/dark.json"
+      },
+      {
+        "label": "PyCodeJOJO Dark2",
+        "uiTheme": "vs-dark",
+        "path": "./themes/dark2.json"
       }
     ],
     "configuration": {
@@ -30,12 +35,12 @@
           "type": "string",
           "enum": [
             "PyCodeJOJO Dark",
-            "PyCodeJOJO Light",
+            "PyCodeJOJO Dark2",
             "PyCodeJOJO Blue",
             "PyCodeJOJO Green",
             "Disabled"
           ],
-          "default": "PyCodeJOJO Dark",
+          "default": "PyCodeJOJO Blue",
           "description": "选择 PyCodeJOJO 主题样式"
         },
         "pycodejojo.enableColorPicker": {
