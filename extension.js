@@ -15,18 +15,13 @@ const { checkPythonEnvironment } = require("./JS/runPython.js");
 
 const { makePythonProperty } = require("./JS/makePythonProperty.js");
 
-const {
-  checkAttributeExistence,
-} = require("./JS/attributeExistenceChecker.js");
-
 const colorPicker = new ColorPicker();
 
 async function checkPythonCode(document) {
   if (document.languageId !== "python") {
     return;
-  } 
-  checkAttributeExistence(document);
-
+  }
+  console.error("Checking Python code: ", document.fileName);
   // 获取 VS Code 的诊断信息
   const diagnostics = vscode.languages.getDiagnostics(document.uri);
   // 检查是否有语法错误（通常 severity 为 0 是 Error）
@@ -55,7 +50,16 @@ async function activate(context) {
     return;
   }
 
+  const config = vscode.workspace.getConfiguration("pythonjojo");
+  const enableTheme = config.get("enableTheme");
+
   context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      console.error("Configuration changed, reloading...",event);
+      if (event.affectsConfiguration("pythonjojo")) {
+      }
+    }),
+
     vscode.languages.registerColorProvider("python", colorPicker),
     vscode.languages.registerCodeActionsProvider("python", {
       provideCodeActions(document, range, context) {

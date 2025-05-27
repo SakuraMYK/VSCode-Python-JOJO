@@ -3,7 +3,7 @@
   "name": "pycode-jojo",
   "displayName": "PyCodeJOJO",
   "description": "Code checker + snippet inserter + color picker for Python developers.",
-  "version": "0.0.5",
+  "version": "2025.5.5",
   "icon": "images/dark.png",
   "engines": {
     "vscode": "^1.99.0"
@@ -17,24 +17,48 @@
   ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "python-ex.showColorPicker",
-        "title": "python-ex.showColorPicker"
-      }
-    ],
     "themes": [
       {
         "label": "PyCodeJOJO Dark",
         "uiTheme": "vs-dark",
         "path": "./themes/dark-color-theme.json"
       }
-    ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "vscode-test"
+    ],
+    "configuration": {
+      "title": "PyCodeJOJO",
+      "properties": {
+        "pycodejojo.enableTheme": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用 PyCodeJOJO 主题"
+        },
+        "pycodejojo.enableDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用代码诊断功能"
+        },
+        "pycodejojo.enableColorPicker": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用颜色选择器功能"
+        },
+        "pycodejojo.checkForLoopVariables": {
+          "type": "boolean",
+          "default": true,
+          "description": "检查 for 循环变量冲突"
+        },
+        "pycodejojo.checkModuleNameConflicts": {
+          "type": "boolean",
+          "default": true,
+          "description": "检查模块名称冲突"
+        },
+        "pycodejojo.checkUninitializedInherited": {
+          "type": "boolean",
+          "default": true,
+          "description": "检查未初始化的继承类"
+        }
+      }
+    }
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
