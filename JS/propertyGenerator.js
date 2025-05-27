@@ -17,10 +17,15 @@ async function propertyGenerator(document, range) {
 
   const selectedText = editor.document.getText(editor.selection);
 
-  const reSelfProperty = /\s*self\s*\.\s*_(\w+)\s*[:\w\[\],\.\s]*=\s*/g;
+  const reSelfProperty =
+    /\s*self\s*\.\s*_(\w+)\s*[:\w\[\],\.\s]*[=\+\-\*/]+\s*/g;
+
   const matches = [...selectedText.matchAll(reSelfProperty)];
+
   if (matches.length === 0) {
-    vscode.window.showInformationMessage('需要以"_"开头的内部属性');
+    vscode.window.showInformationMessage(
+      'Private attribute must start with "_"'
+    );
     return;
   }
 

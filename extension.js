@@ -140,7 +140,7 @@ async function activate(context) {
           );
           action.command = {
             title: "类内部属性生成Property",
-            command: "pycodejojo.enablePropertyGenerator",
+            command: "pycodejojo.propertyGenerator",
             arguments: [document, range],
           };
           actions.push(action);

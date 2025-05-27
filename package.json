@@ -38,7 +38,7 @@
             "PyCodeJOJO Dark2",
             "Disabled"
           ],
-          "default": "PyCodeJOJO Dark2",
+          "default": "PyCodeJOJO Dark",
           "description": "选择 PyCodeJOJO 主题样式"
         },
         "pycodejojo.enableColorPicker": {
