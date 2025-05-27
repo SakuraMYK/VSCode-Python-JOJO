@@ -3,7 +3,7 @@
   "name": "pycode-jojo",
   "displayName": "PyCodeJOJO",
   "description": "Code checker + snippet inserter + color picker for Python developers.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "icon": "images/dark.png",
   "engines": {
     "vscode": "^1.99.0"
