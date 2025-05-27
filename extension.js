@@ -19,12 +19,17 @@ const colorPicker = new ColorPicker();
 
 const { applyTheme } = require("./JS/theme.js");
 
+let enable_CheckForLoopVariableConflict = true;
+let enable_CheckModulesWithNameConflicts = true;
+let enable_CheckUninitializedInherited = true;
+// let config = vscode.workspace.getConfiguration("pycodejojo");
+
 async function checkPythonCode(document) {
+  console.error("Checking Python code...");
+
   if (document.languageId !== "python") {
     return;
   }
-  console.error("Checking Python code: ", document.fileName);
-  // 获取 VS Code 的诊断信息
   const diagnostics = vscode.languages.getDiagnostics(document.uri);
   // 检查是否有语法错误（通常 severity 为 0 是 Error）
   const hasSyntaxError = diagnostics.some(
@@ -39,26 +44,74 @@ async function checkPythonCode(document) {
 
   const results = [];
 
-  const d1 = checkForLoopVariableConflict(document);
-  const d2 = await checkModulesWithNameConflicts(document);
-  const d3 = await checkUninitializedInherited(document);
+  if (enable_CheckForLoopVariableConflict)
+    results.push(...checkForLoopVariableConflict(document));
 
-  results.push(...d1, ...d2, ...d3);
+  if (enable_CheckModulesWithNameConflicts) {
+    const r = await checkModulesWithNameConflicts(document);
+    results.push(...r);
+  }
+
+  if (enable_CheckUninitializedInherited) {
+    const r = await checkUninitializedInherited(document);
+    results.push(...r);
+  }
+
   diagnosticCollection.set(document.uri, results);
 }
-
 async function activate(context) {
+  try {
+    console.error("Python environment is ready.");
+  } catch (error) {
+    console.error("Failed to check Python environment:", error);
+    vscode.window.showErrorMessage(
+      "Python环境检查失败，请检查Python环境是否正确安装。"
+    );
+    return;
+  }
   if (!(await checkPythonEnvironment())) {
     return;
   }
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("pycodejojo.theme")) {
-        applyTheme(
-          vscode.workspace.getConfiguration("pycodejojo").get("theme")
-        );
-      }
+      const config = vscode.workspace.getConfiguration("pycodejojo");
+      const map = {
+        "pycodejojo.theme": () => {
+          applyTheme(config.get("theme"));
+        },
+        "pycodejojo.checkForLoopVariables": () => {
+          enable_CheckForLoopVariableConflict = config.get(
+            "checkForLoopVariables"
+          );
+          console.error(
+            "checkForLoopVariables: ",
+            enable_CheckForLoopVariableConflict
+          );
+        },
+        "pycodejojo.checkModuleNameConflicts": () => {
+          enable_CheckModulesWithNameConflicts = config.get(
+            "checkModuleNameConflicts"
+          );
+        },
+        "pycodejojo.checkUninitializedInherited": () => {
+          enable_CheckUninitializedInherited = config.get(
+            "checkUninitializedInherited"
+          );
+        },
+        "pycodejojo.enablePropertyGenerator": () => {
+          enable_CheckUninitializedInherited = config.get(
+            "enablePropertyGenerator"
+          );
+        },
+      };
+
+      Object.keys(map).forEach((key) => {
+        if (event.affectsConfiguration(key)) {
+          map[key]();
+          return;
+        }
+      });
     }),
 
     vscode.languages.registerColorProvider("python", colorPicker),
@@ -67,16 +120,16 @@ async function activate(context) {
         const actions = [];
         // 1. 选区非空时，添加自定义操作
         if (!range.isEmpty) {
-          const makeProperty = new vscode.CodeAction(
+          const action = new vscode.CodeAction(
             '"_"内部属性生成Property',
             vscode.CodeActionKind.QuickFix
           );
-          makeProperty.command = {
+          action.command = {
             title: "类内部属性生成Property",
-            command: "pycodejojo.propertyGenerator",
+            command: "pycodejojo.enablePropertyGenerator",
             arguments: [document, range],
           };
-          actions.push(makeProperty);
+          actions.push(action);
         }
         // 2. 诊断修复项
         for (const diag of context.diagnostics) {

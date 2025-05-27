@@ -80,7 +80,7 @@ function checkPythonEnvironment() {
         );
         resolve(false);
       } else {
-        vscode.window.showInformationMessage("Plugin enabled", stdout);
+        vscode.window.showInformationMessage("plugin enabled", stdout);
         resolve(true);
       }
     });

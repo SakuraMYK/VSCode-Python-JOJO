@@ -36,11 +36,9 @@
           "enum": [
             "PyCodeJOJO Dark",
             "PyCodeJOJO Dark2",
-            "PyCodeJOJO Blue",
-            "PyCodeJOJO Green",
             "Disabled"
           ],
-          "default": "PyCodeJOJO Blue",
+          "default": "PyCodeJOJO Dark2",
           "description": "选择 PyCodeJOJO 主题样式"
         },
         "pycodejojo.enableColorPicker": {
@@ -63,7 +61,7 @@
           "default": true,
           "description": "检查未初始化的继承类"
         },
-        "pycodejojo.makePythonProperties": {
+        "pycodejojo.enablePropertyGenerator": {
           "type": "boolean",
           "default": true,
           "description": "启用 property getter/setter 生成器"
