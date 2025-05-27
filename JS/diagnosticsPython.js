@@ -41,7 +41,7 @@ function checkForLoopVariableConflict(document) {
   return diagnostics;
 }
 
-async function checkModulesWithNameConflicts(document) {
+async function checkImportVsLocalClassConflict(document) {
   const ranges = await getPythonScriptResult(
     document,
     "get_modules_with_name_conflicts"
@@ -71,7 +71,7 @@ async function checkModulesWithNameConflicts(document) {
   return diagnostics;
 }
 
-async function checkUninitializedInherited(document) {
+async function checkMissingSuperInit(document) {
   const ranges = await getPythonScriptResult(
     document,
     "get_classes_without_parent_init_call"
@@ -96,6 +96,6 @@ async function checkUninitializedInherited(document) {
 
 module.exports = {
   checkForLoopVariableConflict,
-  checkModulesWithNameConflicts,
-  checkUninitializedInherited,
+  checkImportVsLocalClassConflict,
+  checkMissingSuperInit,
 };

@@ -5,8 +5,8 @@ const diagnosticCollection =
 
 const {
   checkForLoopVariableConflict,
-  checkModulesWithNameConflicts,
-  checkUninitializedInherited,
+  checkImportVsLocalClassConflict,
+  checkMissingSuperInit,
 } = require("./JS/diagnosticsPython.js");
 
 const { ColorPicker, forceRefreshColors } = require("./JS/colorPicker.js");
@@ -20,9 +20,9 @@ const colorPicker = new ColorPicker();
 const { applyTheme } = require("./JS/theme.js");
 
 let enable_CheckForLoopVariableConflict = true;
-let enable_CheckModulesWithNameConflicts = true;
-let enable_CheckUninitializedInherited = true;
-// let config = vscode.workspace.getConfiguration("pycodejojo");
+let enable_CheckImportVsLocalClassConflict = true;
+let enable_CheckMissingSuperInit = true;
+let enable_PropertyGenerator = true;
 
 async function checkPythonCode(document) {
   console.error("Checking Python code...");
@@ -47,31 +47,27 @@ async function checkPythonCode(document) {
   if (enable_CheckForLoopVariableConflict)
     results.push(...checkForLoopVariableConflict(document));
 
-  if (enable_CheckModulesWithNameConflicts) {
-    const r = await checkModulesWithNameConflicts(document);
+  if (enable_CheckImportVsLocalClassConflict) {
+    const r = await checkImportVsLocalClassConflict(document);
     results.push(...r);
   }
 
-  if (enable_CheckUninitializedInherited) {
-    const r = await checkUninitializedInherited(document);
+  if (enable_CheckMissingSuperInit) {
+    const r = await checkMissingSuperInit(document);
     results.push(...r);
   }
 
   diagnosticCollection.set(document.uri, results);
 }
 async function activate(context) {
-  try {
-    console.error("Python environment is ready.");
-  } catch (error) {
-    console.error("Failed to check Python environment:", error);
-    vscode.window.showErrorMessage(
-      "Python环境检查失败，请检查Python环境是否正确安装。"
-    );
-    return;
-  }
   if (!(await checkPythonEnvironment())) {
     return;
   }
+
+  const c = vscode.workspace.getConfiguration("pycodejojo");
+  enable_CheckForLoopVariableConflict = c.get("checkForLoopVariables");
+  enable_CheckImportVsLocalClassConflict = c.get("checkModuleNameConflicts");
+  enable_CheckMissingSuperInit = c.get("checkMissingSuperInit");
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
@@ -80,29 +76,21 @@ async function activate(context) {
         "pycodejojo.theme": () => {
           applyTheme(config.get("theme"));
         },
-        "pycodejojo.checkForLoopVariables": () => {
+        "pycodejojo.CheckForLoopVariableConflict": () => {
           enable_CheckForLoopVariableConflict = config.get(
             "checkForLoopVariables"
           );
-          console.error(
-            "checkForLoopVariables: ",
-            enable_CheckForLoopVariableConflict
-          );
         },
         "pycodejojo.checkModuleNameConflicts": () => {
-          enable_CheckModulesWithNameConflicts = config.get(
+          enable_CheckImportVsLocalClassConflict = config.get(
             "checkModuleNameConflicts"
           );
         },
-        "pycodejojo.checkUninitializedInherited": () => {
-          enable_CheckUninitializedInherited = config.get(
-            "checkUninitializedInherited"
-          );
+        "pycodejojo.checkMissingSuperInit": () => {
+          enable_CheckMissingSuperInit = config.get("checkMissingSuperInit");
         },
         "pycodejojo.enablePropertyGenerator": () => {
-          enable_CheckUninitializedInherited = config.get(
-            "enablePropertyGenerator"
-          );
+          enable_PropertyGenerator = config.get("enablePropertyGenerator");
         },
       };
 
@@ -121,7 +109,7 @@ async function activate(context) {
         // 1. 选区非空时，添加自定义操作
         if (!range.isEmpty) {
           const action = new vscode.CodeAction(
-            '"_"内部属性生成Property',
+            "Convert Private Attribute to Property",
             vscode.CodeActionKind.QuickFix
           );
           action.command = {

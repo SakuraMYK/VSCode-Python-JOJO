@@ -46,7 +46,7 @@
           "default": true,
           "description": "启用颜色选择器功能"
         },
-        "pycodejojo.checkForLoopVariables": {
+        "pycodejojo.checkForLoopVariableConflict": {
           "type": "boolean",
           "default": true,
           "description": "检查 for 循环变量冲突"
