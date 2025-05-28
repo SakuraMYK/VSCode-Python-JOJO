@@ -6,6 +6,7 @@
 const vscode = require("vscode");
 const { spawn } = require("child_process");
 const path = require("path");
+const { t } = require("./language.js");
 
 /**
  * Python 脚本文件路径
@@ -35,9 +36,7 @@ async function getPythonScriptResult(
     py.stderr.on("data", (data) => (stderr += data));
     py.on("close", () => {
       if (stderr) {
-        vscode.window.showErrorMessage(
-          `Python 插件错误: child_process 执行失败 ${stderr}`
-        );
+        vscode.window.showErrorMessage(stderr);
       }
       // 修复：如果没有输出则直接返回空数组，避免 JSON.parse 报错
       if (!stdout || !stdout.trim()) {

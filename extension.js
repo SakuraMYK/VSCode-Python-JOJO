@@ -10,12 +10,10 @@ const {
 } = require("./JS/diagnosticsPython.js");
 
 const { ColorPicker, forceRefreshColors } = require("./JS/colorPicker.js");
-
 const { checkPythonEnvironment } = require("./JS/runPython.js");
-
 const { propertyGenerator } = require("./JS/propertyGenerator.js");
-
 const { applyTheme } = require("./JS/theme.js");
+const { t } = require("./JS/language.js");
 
 let enable_CheckForLoopVariableConflict = true;
 let enable_CheckImportVsLocalClassConflict = true;
@@ -62,6 +60,7 @@ async function activate(context) {
     return;
   }
 
+  t("propertyGenerator.noClassFound.en");
   // 读取settings.json中的配置，如果无配置则使用package.json中的默认配置
   const c = vscode.workspace.getConfiguration("pycodejojo");
   enable_CheckForLoopVariableConflict = c.get("checkForLoopVariableConflict");
@@ -70,12 +69,6 @@ async function activate(context) {
   );
   enable_CheckMissingSuperInit = c.get("checkMissingSuperInit");
   enable_ColorPicker = c.get("enableColorPicker");
-
-  console.error(
-    enable_CheckForLoopVariableConflict,
-    enable_CheckImportVsLocalClassConflict,
-    enable_CheckMissingSuperInit
-  );
 
   if (enable_ColorPicker) {
     context.subscriptions.push(
@@ -105,6 +98,7 @@ async function activate(context) {
         },
         "pycodejojo.enableColorPicker": () => {
           enable_ColorPicker = config.get("enableColorPicker");
+          const language = config.get("language");
           // 提示用户重启
           vscode.window
             .showInformationMessage(

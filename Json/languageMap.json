@@ -1,0 +1,31 @@
+{
+  "propertyGenerator": {
+    "needClass": {
+      "en": "Need a class to generate property",
+      "zh": "需要类才能生成property"
+    },
+    "needPrivateAttribute": {
+      "en": "Need a private attribute starting with \"_\"",
+      "zh": "需要以 \"_\" 开头的私有属性"
+    },
+    "propertyAlreadyExists": {
+      "en": "property already exists",
+      "zh": "已存在对应property"
+    },
+    "propertyAdded": {
+      "en": "property added",
+      "zh": "已添加property"
+    }
+  },
+
+  "checkPythonEnvironment": {
+    "needPythonEnvironment": {
+      "en": "The plugin requires a Python environment. Please install Python and configure the environment variables",
+      "zh": "该插件需要Python环境，请安装Python并配置环境变量"
+    },
+    "pluginEnabled": {
+      "en": "plugin enabled",
+      "zh": "插件已启用"
+    }
+  }
+}

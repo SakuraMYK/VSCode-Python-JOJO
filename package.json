@@ -31,6 +31,15 @@
     "configuration": {
       "title": "PyCodeJOJO",
       "properties": {
+        "pycodejojo.language": {
+          "type": "string",
+          "enum": [
+            "English",
+            "Simplified Chinese"
+          ],
+          "default": "English",
+          "description": "选择插件的语言"
+        },
         "pycodejojo.theme": {
           "type": "string",
           "enum": [
