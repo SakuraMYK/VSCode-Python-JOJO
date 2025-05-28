@@ -13,19 +13,22 @@ async function applyTheme(themeName) {
     );
 }
 
-class PrivateHighlight {
+class PythonSyntaxHighlighter {
   constructor() {
+    this.updateTimeout = null;
+
     this.privateVarStyle = vscode.window.createTextEditorDecorationType({
       color: "#8EFA58",
       fontWeight: "bold",
       fontStyle: "italic",
     });
+
     this.privateMethodStyle = vscode.window.createTextEditorDecorationType({
       color: "#576EFF",
       fontWeight: "bold",
       fontStyle: "italic",
     });
-    
+
     this.magicMethodStyle = vscode.window.createTextEditorDecorationType({
       color: "#67B8EA",
       fontWeight: "bold",
@@ -63,4 +66,4 @@ class PrivateHighlight {
   }
 }
 
-module.exports = { applyTheme, PrivateHighlight };
+module.exports = { applyTheme, PythonSyntaxHighlighter };

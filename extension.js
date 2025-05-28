@@ -13,7 +13,7 @@ const { ColorPicker, forceRefreshColors } = require("./JS/colorPicker.js");
 const { checkPythonEnvironment } = require("./JS/runPython.js");
 const { propertyGenerator } = require("./JS/propertyGenerator.js");
 const { t, current } = require("./JS/language.js");
-const { applyTheme, PrivateHighlight } = require("./JS/theme.js");
+const { applyTheme, PythonSyntaxHighlighter } = require("./JS/theme.js");
 
 let enable_CheckForLoopVariableConflict = true;
 let enable_CheckImportVsLocalClassConflict = true;
@@ -56,7 +56,7 @@ async function checkPythonCode(document) {
 async function activate(context) {
   if (!(await checkPythonEnvironment())) return;
 
-  const newHighlight = new PrivateHighlight();
+  const pyHighlighter = new PythonSyntaxHighlighter();
 
   current.language = vscode.env.language;
 
@@ -184,11 +184,10 @@ async function activate(context) {
         event.document === editor.document &&
         editor.document.languageId === "python"
       ) {
-        clearTimeout(newHighlight.updateTimeout);
-        newHighlight.updateTimeout = setTimeout(() => {
-          newHighlight.update(editor);
+        clearTimeout(pyHighlighter.updateTimeout);
+        pyHighlighter.updateTimeout = setTimeout(() => {
+          pyHighlighter.update(editor);
         }, 50);
-        // newHighlight.update(editor)
       }
     }),
     vscode.workspace.onDidCloseTextDocument((doc) => {
@@ -201,7 +200,7 @@ async function activate(context) {
         editor.document.languageId === "python"
       ) {
         forceRefreshColors(editor.document);
-        newHighlight.update(editor);
+        pyHighlighter.update(editor);
       }
     }),
     vscode.commands.registerCommand(
