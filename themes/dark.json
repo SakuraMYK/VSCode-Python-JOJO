@@ -100,6 +100,20 @@
       }
     },
     {
+      "scope": ["punctuation.separator.period.python"],
+      "settings": {
+        "fontStyle": " ",
+        "foreground": "#9bc709"
+      }
+    },
+    {
+      "scope": ["constant.other.ellipsis.python"],
+      "settings": {
+        "fontStyle": " ",
+        "foreground": "#C1B16F"
+      }
+    },
+    {
       "name": "Keyword Self",
       "scope": [
         "variable.parameter.function.language.special.self.python",
@@ -304,7 +318,10 @@
       }
     },
     {
-      "scope": ["punctuation.section.function.begin.python"],
+      "scope": [
+        "punctuation.section.function.begin.python",
+        "punctuation.section.class.begin.python"
+      ],
       "settings": {
         "fontStyle": "italic bold",
         "foreground": "#4fbccfca"
