@@ -54,9 +54,7 @@ async function checkPythonCode(document) {
   diagnosticCollection.set(document.uri, results);
 }
 async function activate(context) {
-  if (!(await checkPythonEnvironment())) {
-    return;
-  }
+  if (!(await checkPythonEnvironment())) return;
 
   current.language = vscode.env.language;
 
@@ -136,7 +134,7 @@ async function activate(context) {
             vscode.CodeActionKind.QuickFix
           );
           action.command = {
-            title: "类内部属性生成Property",
+            title: "Property Generator",
             command: "pycodejojo.propertyGenerator",
             arguments: [document, range],
           };
@@ -146,7 +144,7 @@ async function activate(context) {
         for (const diag of context.diagnostics) {
           if (diag.code === "need super().__init__()") {
             const fix = new vscode.CodeAction(
-              "插入 super().__init__()",
+              "add super().__init__()",
               vscode.CodeActionKind.QuickFix
             );
             fix.edit = new vscode.WorkspaceEdit();

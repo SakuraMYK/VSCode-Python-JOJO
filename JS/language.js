@@ -1,15 +1,15 @@
 const languageMap = require("../Json/languageMap.json");
-const current = { language: "zh-cn" };
+const current = { language: "English" };
 
 function t(keyPath) {
   const path = keyPath.split(".");
   const func = path[0];
   const key = path[1];
 
-  console.error("in T current.language: ", current.language);
-  console.error(current.language === "English", current.language === "en");
-
-  if (current.language === "English" || current.language === "en") {
+  if (
+    current.language.toLowerCase() === "english" ||
+    current.language.toLowerCase() === "en"
+  ) {
     return languageMap[func][key]["en"];
   } else {
     return languageMap[func][key]["zh-cn"];

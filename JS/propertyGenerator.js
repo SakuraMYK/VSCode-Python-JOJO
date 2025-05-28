@@ -1,4 +1,5 @@
 const vscode = require("vscode");
+const { t } = require("./language.js");
 
 async function propertyGenerator(document, range) {
   const editor = vscode.window.activeTextEditor;
@@ -24,7 +25,7 @@ async function propertyGenerator(document, range) {
 
   if (matches.length === 0) {
     vscode.window.showInformationMessage(
-      'Private attribute must start with "_"'
+      t("propertyGenerator.needPrivateAttribute")
     );
     return;
   }
@@ -59,7 +60,9 @@ async function propertyGenerator(document, range) {
   }
 
   if (!pythonCode) {
-    vscode.window.showInformationMessage("已存在对应property");
+    vscode.window.showInformationMessage(
+      t("propertyGenerator.propertyAlreadyExists")
+    );
     return;
   }
 
@@ -85,7 +88,7 @@ async function propertyGenerator(document, range) {
     vscode.TextEditorRevealType.InCenter
   );
 
-  vscode.window.showInformationMessage("已添加property");
+  vscode.window.showInformationMessage(t("propertyGenerator.propertyAdded"));
 }
 
 function getClassStartLine(document, range) {
