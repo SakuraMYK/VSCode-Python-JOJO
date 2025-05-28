@@ -3,7 +3,7 @@
   "name": "pycodejojo",
   "displayName": "PyCodeJOJO",
   "description": "Python diagnostics, property generator, color picker and dark theme toolkit for enhanced VS Code development.",
-  "version": "2025.7.1",
+  "version": "2025.7.2",
   "icon": "images/dark.png",
   "engines": {
     "vscode": "^1.99.0"
