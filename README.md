@@ -1,72 +1,136 @@
-# python-ex
+# PyCodeJOJO
 
-## 简介
+一个简洁实用的 VS Code Python 开发扩展，提供代码诊断、颜色选择器、属性生成器等辅助功能，帮助提升 Python 开发体验。
 
-- 本插件旨在帮助开发者检测和修复 Python 代码中的潜在问题，包括 for 循环变量名冲突、模块名称冲突、未调用父类初始化方法以及颜色值的快速选择。通过实时诊断和快速修复功能，提升代码质量和开发效率。
+A simple and practical VS Code Python development extension that provides code diagnostics, color picker, property generator and other helpful features to enhance your Python development experience.
 
-- This plugin is designed to help developers detect and fix potential issues in Python code, such as for loop variable name conflicts, module name conflicts, missing parent class initialization calls, and quick color selection for color values. It provides real-time diagnostics and quick fixes to improve code quality and development efficiency.
+## ✨ 主要特性 / Main Features
 
-## 功能
+### 🎨 智能颜色选择器 / Smart Color Picker
 
-- **检测 for 循环变量名冲突**  
-  检查 for 循环的变量名是否与函数参数名重复，并提供中文警告（波浪线提示）。  
-  Detects if the variable name in a for loop conflicts with function parameters and provides a warning (wavy underline).
+- 支持多种颜色格式：`rgb()`, `rgba()`, `#hex`, `(r,g,b)`, `(r,g,b,a)`
+- Support multiple color formats: `rgb()`, `rgba()`, `#hex`, `(r,g,b)`, `(r,g,b,a)`
+- 实时颜色预览和编辑
+- Real-time color preview and editing
+- 自动检测代码中的颜色值
+- Automatically detect color values in code
 
-- **检测模块名称冲突**  
-  检测当前文件中是否存在与类同名的模块导入，并提供警告。  
-  Checks for module imports that have the same name as a class in the file and provides a warning.
+### 🔍 代码诊断功能 / Code Diagnostics
 
-- **检测未调用父类初始化方法**  
-  检测类是否未调用父类初始化方法（`super().__init__()`），并提供快速修复选项。  
-  Detects if a class does not call the parent class's initialization method (`super().__init__()`) and provides a quick fix option.
+- **循环变量冲突检测**：检测 `for` 循环中变量名与迭代对象重名的问题
+- **Loop Variable Conflict Detection**: Detect variable name conflicts with iteration objects in `for` loops
+- **导入冲突检测**：检测本地类与导入模块的命名冲突
+- **Import Conflict Detection**: Detect naming conflicts between local classes and imported modules
+- **缺失 super().**init**() 检测**：检测继承类中缺少父类初始化调用
+- **Missing super().**init**() Detection**: Detect missing parent class initialization calls in inheritance classes
 
-- **取色器功能**  
-  提供一个内置的取色器工具，支持从屏幕任意位置吸取颜色，并将颜色值插入到代码中。支持以下所有颜色格式：
-  - RGB 格式（例如 `(255, 136, 0)`）
-  - HEX 格式（例如 `#FF8800`）
-  - rgba() 格式（例如 `rgba(255, 136, 0, 1)`）
-  - 带前缀的括号表示法（如 `rgb(255, 136, 0)`）
-  - 无前缀的括号表示法（如 `(255, 136, 0)`）  
-    Includes a built-in color picker tool that allows you to pick colors from anywhere on the screen and insert them into your code. Supports all of the following color formats:
-  - RGB format (e.g., `(255, 136, 0)`)
-  - HEX format (e.g., `#FF8800`)
-  - rgba() format (e.g., `rgba(255, 136, 0, 1)`)
-  - Parenthetical notation with prefix (e.g., `rgb(255, 136, 0)`)
-  - Parenthetical notation without prefix (e.g., `(255, 136, 0)`)
+### ⚡ 属性生成器 / Property Generator
 
-## 使用方法
+- 自动为私有属性生成 `@property` 装饰器
+- Automatically generate `@property` decorators for private attributes
+- 智能检测已存在的属性方法，避免重复生成
+- Intelligently detect existing property methods to avoid duplicate generation
+- 支持 getter 和 setter 方法自动生成
+- Support automatic generation of getter and setter methods
 
-- **安装后自动生效**
+### 🎭 主题支持 / Theme Support
 
-  1. 安装插件后，打开包含 Python 代码的文件。
-  2. 插件会自动检测代码中的潜在问题，并在编辑器中显示警告信息。
-  3. 对于未调用父类初始化方法的问题，插件会提供快速修复选项，点击即可插入 `super().__init__()`。
-  4. 要使用取色器功能，请将光标放在现有颜色值上（如 `(255, 136, 0)` 或 `#FF8800`），然后激活插件提供的命令，插件将弹出取色器窗口，支持 RGB、HEX 和 rgba 格式的颜色选取和切换。
+- 内置 PyCodeJOJO Dark 主题
+- Built-in PyCodeJOJO Dark theme
+- 支持主题动态切换
+- Support dynamic theme switching
 
-- **English Usage Instructions**
-  1. After installing the plugin, open a file containing Python code.
-  2. The plugin will automatically detect potential issues in the code and display warning messages in the editor.
-  3. For issues where the parent class initialization method is not called, the plugin will provide a quick fix option to insert `super().__init__()`.
-  4. To use the color picker, place the cursor over an existing color value (e.g., `(255, 136, 0)` or `#FF8800`), then activate the command provided by the plugin. A color picker window will pop up, supporting color picking and switching between RGB, HEX, and rgba formats.
+### ⚙️ 设置功能开关 / Settings Toggle
 
-## Requirements
+> **提示 / Tip**: 用户可以通过 VS Code 的设置界面 (`Ctrl+,`) 开启或关闭扩展中的对应功能。
+>
+> Users can enable or disable corresponding features in the extension through VS Code's settings interface (`Ctrl+,`).
 
-- 本插件依赖 Python 环境，请确保您的系统已安装 Python。如果未安装，插件将无法正常工作。
+## 📋 前置条件 / Prerequisites
 
-## 更新日志
+- **Python**: 系统需要安装 Python 环境（用于代码分析功能）
+- **Python**: Python environment must be installed on the system (for code analysis features)
 
-### v1.1.0
+## 🚀 安装使用 / Installation & Usage
 
-- **新增功能**: 支持检测未调用父类初始化方法，并提供快速修复选项。
-- **优化**: 取色器功能现在支持更多颜色格式，包括 rgba() 和带前缀的括号表示法。
-- **修复**: 修复了模块名称冲突检测中的误报问题。
+### 从 VS Code 插件市场安装 / Install from VS Code Marketplace
 
-- **New Feature**: Added support for detecting and providing quick fixes for missing parent class initialization calls.
-- **Improvement**: Enhanced color picker to support more formats, including rgba() and parenthetical notation with prefix.
-- **Fix**: Resolved false positives in module name conflict detection.
+1. 进入扩展面板 (`Ctrl+Shift+X`)
+   Open the Extensions panel (`Ctrl+Shift+X`)
+2. 搜索 "PyCodeJOJO"
+   Search for "PyCodeJOJO"
+3. 点击安装
+   Click Install
 
-### v1.0.0
+### 手动安装 / Manual Installation
 
-- **初始版本**: 发布了插件的初始版本，包含 for 循环变量名冲突检测和模块名称冲突检测功能。
+1. 下载 `.vsix` 文件
+   Download the `.vsix` file
+2. 在 VS Code 中使用 `Extensions: Install from VSIX` 命令安装
+   Install using the `Extensions: Install from VSIX` command in VS Code
 
-- **Initial Release**: Released the initial version of the plugin, featuring for loop variable name conflict detection and module name conflict detection.
+## 🎯 使用示例 / Usage Examples
+
+### 颜色选择器 / Color Picker
+
+```python
+# 支持的颜色格式 / Supported color formats
+color1 = (255, 0, 0)              # RGB 元组 / RGB tuple
+color2 = (255, 0, 0, 234)         # RGBA 元组 / RGBA tuple
+color3 = (255, 0, 0, 0.5)         # RGBA 元组 / RGBA tuple
+color4 = rgb(255, 0, 0)           # RGB 函数 / RGB function
+color5 = rgba(255, 0, 0, 0.8)     # RGBA 函数 / RGBA function
+color6 = rgba(255, 0, 0, 229)     # RGBA 函数 / RGBA function
+color7 = #FF0000                  # 十六进制 / Hexadecimal
+```
+
+### 属性生成器 / Property Generator
+
+```python
+class MyClass:
+    def __init__(self):
+        self._name = "example"  # 选中此行，使用属性生成器
+                               # Select this line and use property generator
+        self._value = 42
+
+    # 自动生成的属性方法将插入到这里
+    # Auto-generated property methods will be inserted here
+```
+
+### 代码诊断示例 / Code Diagnostics Examples
+
+```python
+# 循环变量冲突检测 / Loop variable conflict detection
+items = [1, 2, 3]
+for items in items:  # ⚠️ 警告：变量名冲突 / Warning: Variable name conflict
+    print(items)
+
+# 导入冲突检测 / Import conflict detection
+from math import pi
+class pi:  # ⚠️ 警告：与导入模块冲突 / Warning: Conflicts with imported module
+    pass
+
+# 缺失 super().__init__() 检测 / Missing super().__init__() detection
+class Parent:
+    def __init__(self):
+        pass
+
+class Child(Parent):
+    def __init__(self):  # ⚠️ 警告：缺少 super().__init__() / Warning: Missing super().__init__()
+        self.value = 1
+```
+
+## 🌐 多语言支持 / Multi-language Support
+
+- 🇺🇸 English
+- 🇨🇳 简体中文 / Simplified Chinese
+
+## 🐛 问题反馈 / Issue Reporting
+
+欢迎提交 Issue 和 Pull Request！
+Welcome to submit Issues and Pull Requests!
+
+## 📝 更新日志 / Changelog
+
+查看 [CHANGELOG.md](CHANGELOG.md) 了解详细的版本更新信息。
+See [CHANGELOG.md](CHANGELOG.md) for detailed version update information.
