@@ -47,29 +47,30 @@ class PythonSyntaxHighlighter {
     const rePrivateMethod = /(def\s+)(_(?!_)\w+)/g;
     const reMagicMethod = /(def\s+)(__\w+__)/g;
     const reImportName =
-      /(import\s+[\.\w]+\s+as\s+)(\w+)|(import\s+)([\.\w]+)\s*(?!as)/g;
+      /(import\s+)([\.\w]+)\s*(?!as)/g;
 
     const text = editor.document.getText();
 
-    this._setDecorations(editor, text, rePrivateVar, this.privateVarStyle);
-    this._setDecorations(
-      editor,
-      text,
-      rePrivateMethod,
-      this.privateMethodStyle
-    );
-    this._setDecorations(editor, text, reMagicMethod, this.magicMethodStyle);
+    // this._setDecorations(editor, text, rePrivateVar, this.privateVarStyle);
+    // this._setDecorations(
+    //   editor,
+    //   text,
+    //   rePrivateMethod,
+    //   this.privateMethodStyle
+    // );
+    // this._setDecorations(editor, text, reMagicMethod, this.magicMethodStyle);
     this._setDecorations(editor, text, reImportName, this.importNameStyle);
   }
 
   _setDecorations(editor, text, regex, style) {
     const decorations = [];
     let match;
+    console.error(`regex: ${regex}`);
 
     while ((match = regex.exec(text)) !== null) {
       const start = match.index + match[1].length;
       const end = start + match[2].length;
-
+      console.error(`match: ${match[2]}`);
       decorations.push({
         range: new vscode.Range(
           editor.document.positionAt(start),
