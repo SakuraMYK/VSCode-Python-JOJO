@@ -1,5 +1,6 @@
 const vscode = require("vscode");
 const { getPythonScriptResult } = require("./runPython.js");
+const { t } = require("./language.js");
 
 function checkForLoopVariableConflict(document) {
   const text = document.getText();
@@ -24,7 +25,7 @@ function checkForLoopVariableConflict(document) {
           document.positionAt(start1),
           document.positionAt(end1)
         ),
-        `循环变量 与 迭代对象 重名冲突`,
+        t("checkForLoopVariableConflict.variableConflict"),
         vscode.DiagnosticSeverity.Warning
       );
       const diagnostic2 = new vscode.Diagnostic(
@@ -32,7 +33,7 @@ function checkForLoopVariableConflict(document) {
           document.positionAt(start2),
           document.positionAt(end2)
         ),
-        `循环变量 与 迭代对象 重名冲突`,
+        t("checkForLoopVariableConflict.variableConflict"),
         vscode.DiagnosticSeverity.Warning
       );
       diagnostics.push(diagnostic, diagnostic2); // 添加诊断信息
@@ -55,7 +56,7 @@ async function checkImportVsLocalClassConflict(document) {
         document.positionAt(item.class[0]),
         document.positionAt(item.class[1])
       ),
-      `当前类已有同名类导入，将覆盖导入的类`,
+      t("checkImportVsLocalClassConflict.importConflict"),
       vscode.DiagnosticSeverity.Warning
     );
     const d_import = new vscode.Diagnostic(
@@ -63,7 +64,7 @@ async function checkImportVsLocalClassConflict(document) {
         document.positionAt(item.import[0]),
         document.positionAt(item.import[1])
       ),
-      `当前类已被该文件中的同名类覆盖`,
+      t("checkImportVsLocalClassConflict.importConflict"),
       vscode.DiagnosticSeverity.Warning
     );
     diagnostics.push(d_class, d_import);
@@ -84,7 +85,7 @@ async function checkMissingSuperInit(document) {
         document.positionAt(item.class[0]),
         document.positionAt(item.class[1])
       ),
-      `该类未继承父类初始化，可能会导致父类某些属性无法调用`,
+      t("checkMissingSuperInit.missingSuperInit"),
       vscode.DiagnosticSeverity.Warning
     );
     diagnostic.code = "need add super().__init__()";

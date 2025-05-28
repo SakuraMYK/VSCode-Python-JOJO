@@ -65,7 +65,7 @@
           "default": true,
           "description": "检查模块名称覆盖冲突"
         },
-        "pycodejojo.checkUninitializedInherited": {
+        "pycodejojo.checkMissingSuperInit": {
           "type": "boolean",
           "default": true,
           "description": "检查未初始化的继承类"

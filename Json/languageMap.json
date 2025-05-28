@@ -2,36 +2,65 @@
   "propertyGenerator": {
     "needClass": {
       "en": "Need a class to generate property",
-      "zh": "需要类才能生成property"
+      "zh-cn": "需要类才能生成property"
     },
     "needPrivateAttribute": {
       "en": "Need a private attribute starting with \"_\"",
-      "zh": "需要以 \"_\" 开头的私有属性"
+      "zh-cn": "需要以 \"_\" 开头的私有属性"
     },
     "propertyAlreadyExists": {
       "en": "property already exists",
-      "zh": "已存在对应property"
+      "zh-cn": "已存在对应property"
     },
     "propertyAdded": {
       "en": "property added",
-      "zh": "已添加property"
+      "zh-cn": "已添加property"
     }
   },
 
   "checkPythonEnvironment": {
     "needPythonEnvironment": {
       "en": "The plugin requires a Python environment. Please install Python and configure the environment variables",
-      "zh": "该插件需要Python环境，请安装Python并配置环境变量"
+      "zh-cn": "该插件需要Python环境，请安装Python并配置环境变量"
     },
     "pluginEnabled": {
       "en": "plugin enabled",
-      "zh": "插件已启用"
+      "zh-cn": "插件已启用"
     }
   },
+
+  "checkForLoopVariableConflict": {
+    "variableConflict": {
+      "en": "The variable in the loop conflicts with the traversed object",
+      "zh-cn": "循环变量与遍历对象重名"
+    }
+  },
+
+  "checkImportVsLocalClassConflict": {
+    "importConflict": {
+      "en": "The class name conflicts with the imported class",
+      "zh-cn": "当前类已有同名类导入，将覆盖导入的类"
+    }
+  },
+
+  "checkMissingSuperInit": {
+    "missingSuperInit": {
+      "en": "The class does not inherit the parent class initialization, which may cause some parent class attributes to be unable to be called",
+      "zh-cn": "该类未继承父类初始化，可能会导致父类某些属性无法调用"
+    }
+  },
+
   "enableColorPicker": {
     "restartExtension": {
       "en": "The ColorPicker setting changed. Please reload the window to take effect",
-      "zh": "ColorPicker 设置已更改，需重启插件生效"
+      "zh-cn": "ColorPicker 设置已更改，需重启插件生效"
+    }
+  },
+
+  "language": {
+    "changed": {
+      "en": "Language changed to English",
+      "zh-cn": "语言已切换为 中文"
     }
   }
 }

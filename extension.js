@@ -58,7 +58,8 @@ async function activate(context) {
     return;
   }
 
-  t("propertyGenerator.noClassFound.en");
+  current.language = vscode.env.language;
+
   // 读取settings.json中的配置，如果无配置则使用package.json中的默认配置
   const c = vscode.workspace.getConfiguration("pycodejojo");
   enable_CheckForLoopVariableConflict = c.get("checkForLoopVariableConflict");
@@ -96,7 +97,7 @@ async function activate(context) {
         },
         "pycodejojo.enableColorPicker": () => {
           enable_ColorPicker = config.get("enableColorPicker");
-          const language = config.get("language");
+          current.language = config.get("language");
           // 提示用户重启
           vscode.window
             .showInformationMessage(
@@ -110,6 +111,10 @@ async function activate(context) {
                 );
               }
             });
+        },
+        "pycodejojo.language": () => {
+          current.language = config.get("language");
+          vscode.window.showInformationMessage(t("language.changed"));
         },
       };
 
