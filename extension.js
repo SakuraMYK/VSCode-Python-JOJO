@@ -175,6 +175,9 @@ async function activate(context) {
     }),
     vscode.workspace.onDidOpenTextDocument((doc) => {
       checkPythonCode(doc);
+      const editor = vscode.window.activeTextEditor;
+      if (editor && editor.document.languageId === "python")
+        pyHighlighter.update(editor);
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
       checkPythonCode(event.document);
@@ -187,7 +190,7 @@ async function activate(context) {
         clearTimeout(pyHighlighter.updateTimeout);
         pyHighlighter.updateTimeout = setTimeout(() => {
           pyHighlighter.update(editor);
-        }, 50);
+        }, 150);
       }
     }),
     vscode.workspace.onDidCloseTextDocument((doc) => {
