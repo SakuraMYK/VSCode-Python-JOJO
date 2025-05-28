@@ -144,7 +144,7 @@ async function activate(context) {
         }
         // 2. 诊断修复项
         for (const diag of context.diagnostics) {
-          if (diag.code === "need add super().__init__()") {
+          if (diag.code === "need super().__init__()") {
             const fix = new vscode.CodeAction(
               "插入 super().__init__()",
               vscode.CodeActionKind.QuickFix

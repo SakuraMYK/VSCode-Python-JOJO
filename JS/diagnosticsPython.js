@@ -73,6 +73,8 @@ async function checkImportVsLocalClassConflict(document) {
 }
 
 async function checkMissingSuperInit(document) {
+  console.error("checkMissingSuperInit");
+
   const ranges = await getPythonScriptResult(
     document,
     "get_classes_without_parent_init_call"
@@ -88,7 +90,7 @@ async function checkMissingSuperInit(document) {
       t("checkMissingSuperInit.missingSuperInit"),
       vscode.DiagnosticSeverity.Warning
     );
-    diagnostic.code = "need add super().__init__()";
+    diagnostic.code = "need super().__init__()";
     diagnostic.initInsertOffset = item.func[0];
     diagnostics.push(diagnostic);
   }

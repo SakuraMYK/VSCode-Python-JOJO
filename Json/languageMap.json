@@ -45,7 +45,7 @@
 
   "checkMissingSuperInit": {
     "missingSuperInit": {
-      "en": "The class does not inherit the parent class initialization, which may cause some parent class attributes to be unable to be called",
+      "en": "This class does not inherit the parent's __init__, which may cause some parent attributes to be inaccessible",
       "zh-cn": "该类未继承父类初始化，可能会导致父类某些属性无法调用"
     }
   },
