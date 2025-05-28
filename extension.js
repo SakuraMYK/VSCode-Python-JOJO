@@ -13,7 +13,7 @@ const { ColorPicker, forceRefreshColors } = require("./JS/colorPicker.js");
 const { checkPythonEnvironment } = require("./JS/runPython.js");
 const { propertyGenerator } = require("./JS/propertyGenerator.js");
 const { applyTheme } = require("./JS/theme.js");
-const { t } = require("./JS/language.js");
+const { t, current } = require("./JS/language.js");
 
 let enable_CheckForLoopVariableConflict = true;
 let enable_CheckImportVsLocalClassConflict = true;
@@ -21,8 +21,6 @@ let enable_CheckMissingSuperInit = true;
 let enable_ColorPicker = true;
 
 async function checkPythonCode(document) {
-  console.error("Checking Python code...");
-
   if (document.languageId !== "python") {
     return;
   }
@@ -102,7 +100,7 @@ async function activate(context) {
           // 提示用户重启
           vscode.window
             .showInformationMessage(
-              "ColorPicker setting changed. Please reload the window to take effect.",
+              t("enableColorPicker.restartExtension"),
               "Restart Extension"
             )
             .then((selection) => {

@@ -27,5 +27,11 @@
       "en": "plugin enabled",
       "zh": "插件已启用"
     }
+  },
+  "enableColorPicker": {
+    "restartExtension": {
+      "en": "The ColorPicker setting changed. Please reload the window to take effect",
+      "zh": "ColorPicker 设置已更改，需重启插件生效"
+    }
   }
 }

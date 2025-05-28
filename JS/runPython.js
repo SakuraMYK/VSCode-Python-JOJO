@@ -75,11 +75,14 @@ function checkPythonEnvironment() {
       if (stderr) {
         vscode.window.showErrorMessage(stderr);
         vscode.window.showErrorMessage(
-          "The plugin requires a Python environment. Please install Python and configure the environment variables"
+          t("checkPythonEnvironment.needPythonEnvironment")
         );
         resolve(false);
       } else {
-        vscode.window.showInformationMessage("plugin enabled", stdout);
+        vscode.window.showInformationMessage(
+          t("checkPythonEnvironment.pluginEnabled"),
+          stdout
+        );
         resolve(true);
       }
     });
