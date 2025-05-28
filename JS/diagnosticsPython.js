@@ -73,8 +73,6 @@ async function checkImportVsLocalClassConflict(document) {
 }
 
 async function checkMissingSuperInit(document) {
-  console.error("checkMissingSuperInit");
-
   const ranges = await getPythonScriptResult(
     document,
     "get_classes_without_parent_init_call"
