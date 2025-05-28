@@ -1,7 +1,7 @@
 {
   "publisher": "PyJOJO",
   "name": "pycodejojo",
-  "displayName": "PyCodeJOJO",
+  "displayName": "PyCode JOJO",
   "description": "Python diagnostics, property generator, color picker and dark theme toolkit for enhanced VS Code development.",
   "version": "2025.5.4",
   "icon": "images/dark.png",
