@@ -4,7 +4,7 @@
   "displayName": "PyCode JOJO",
   "description": "Python diagnostics, property generator, color picker and dark theme toolkit for enhanced VS Code development.",
   "version": "2025.5.6",
-  "icon": "images/简约.png",
+  "icon": "images/whiteIcon.png",
   "engines": {
     "vscode": "^1.99.0"
   },
