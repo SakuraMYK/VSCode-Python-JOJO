@@ -9,15 +9,20 @@ const NoPrefix_reRGBA_Int =
   /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
 
 const NoPrefix_reRGBA_Float =
-  /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1(\.0)?|0?\.\d+)\s*\)/gs;
+  /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1|0|0\.\d+)\s*\)/gs;
 
 const reRGBA_Int =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
 
 const reRGBA_Float =
-  /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1(\.0)?|0?\.\d+)\s*\)/gs;
+  /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1|0|0\.\d+)\s*\)/gs;
 
 const reHEX = /#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/gs;
+
+const reAlphafloat =
+  /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(1|0|0\.\d+)\s*\)/;
+const reAlphaInt =
+  /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(\d{1,3})\s*\)/;
 
 /**
  * ColorPicker 类实现 DocumentColorProvider 接口，用于在 VS Code 中提供颜色拾取功能。
@@ -102,17 +107,32 @@ class ColorPicker {
    */
   async provideColorPresentations(color, context) {
     try {
-      const r = color.red * 255;
-      const g = color.green * 255;
-      const b = color.blue * 255;
-      const a = color.alpha;
+      const { document, range } = context;
+      const colorString = document.getText(range);
+      let a;
+      let match;
 
-      this.currentEditor.setDecorations(
-        vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
-        }),
-        [context.range]
-      );
+      // if ((match = reAlphafloat.exec(colorString))) {
+      //   const alpha = parseFloat(match[1]);
+      //   if (alpha == 1) {
+      //     a = 255;
+      //   } else {
+      //     a = alpha * 255;
+      //   }
+      // }
+
+      // const r = color.red * 255;
+      // const g = color.green * 255;
+      // const b = color.blue * 255;
+
+      console.error(color.red, color.green, color.blue, color.alpha);
+
+      // this.currentEditor.setDecorations(
+      //   vscode.window.createTextEditorDecorationType({
+      //     backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
+      //   }),
+      //   [context.range]
+      // );
       return [
         new vscode.ColorPresentation(this._colorToString(context, color)),
       ];
@@ -195,7 +215,7 @@ class ColorPicker {
 
     const intA = Math.round(color.alpha * 255);
 
-    if (/rgba/.test(string)) {
+    if (string.startsWith("rgba")) {
       return `rgba(${intR}, ${intG}, ${intB}, ${intA})`;
     } else if (/rgb/.test(string)) {
       if (color.alpha !== 1) {
@@ -203,7 +223,7 @@ class ColorPicker {
       } else {
         return `rgb(${intR}, ${intG}, ${intB})`;
       }
-    } else if (/#/.test(string)) {
+    } else if (string.startsWith("#")) {
       return `#${hexR}${hexG}${hexB}`;
     } else {
       if (string.split(",").length === 4) {
@@ -251,10 +271,10 @@ function getColorRGBRangeMaps(document) {
     const B = parseInt(match[3]);
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
-      const map = {};
-      map["color"] = new vscode.Color(R / 255, G / 255, B / 255, 1);
-      map["range"] = new vscode.Range(start, end);
-      map_list.push(map);
+      map_list.push({
+        color: new vscode.Color(R / 255, G / 255, B / 255, 1),
+        range: new vscode.Range(start, end),
+      });
     }
   }
   return map_list;
@@ -276,10 +296,10 @@ function getColorNoPrefixRGBRangeMaps(document) {
     const B = parseInt(match[3]);
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
-      const map = {};
-      map["color"] = new vscode.Color(R / 255, G / 255, B / 255, 1);
-      map["range"] = new vscode.Range(start, end);
-      map_list.push(map);
+      map_list.push({
+        color: new vscode.Color(R / 255, G / 255, B / 255, 1),
+        range: new vscode.Range(start, end),
+      });
     }
   }
   return map_list;
@@ -310,11 +330,10 @@ function getColorRGBA_Int_RangeMaps(document) {
       A >= 0 &&
       A <= 255
     ) {
-      const range = new vscode.Range(start, end);
-      const map = {};
-      map["color"] = new vscode.Color(R / 255, G / 255, B / 255, A);
-      map["range"] = range;
-      map_list.push(map);
+      map_list.push({
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        range: new vscode.Range(start, end),
+      });
     }
   }
   return map_list;
@@ -345,11 +364,10 @@ function getColorRGBA_Float_RangeMaps(document) {
       A >= 0 &&
       A <= 1
     ) {
-      const range = new vscode.Range(start, end);
-      const map = {};
-      map["color"] = new vscode.Color(R / 255, G / 255, B / 255, A);
-      map["range"] = range;
-      map_list.push(map);
+      map_list.push({
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        range: new vscode.Range(start, end),
+      });
     }
   }
   return map_list;
@@ -380,11 +398,10 @@ function getColorNoPrefixRGBA_Int_RangeMaps(document) {
       A >= 0 &&
       A <= 255
     ) {
-      const range = new vscode.Range(start, end);
-      const map = {};
-      map["color"] = new vscode.Color(R / 255, G / 255, B / 255, A);
-      map["range"] = range;
-      map_list.push(map);
+      map_list.push({
+        color: new vscode.Color(R / 255, G / 255, B / 255, A / 255),
+        range: new vscode.Range(start, end),
+      });
     }
   }
   return map_list;
@@ -415,11 +432,10 @@ function getColorNoPrefixRGBA_Float_RangeMaps(document) {
       A >= 0 &&
       A <= 1
     ) {
-      const range = new vscode.Range(start, end);
-      const map = {};
-      map["color"] = new vscode.Color(R / 255, G / 255, B / 255, A);
-      map["range"] = range;
-      map_list.push(map);
+      map_list.push({
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        range: new vscode.Range(start, end),
+      });
     }
   }
   return map_list;
@@ -442,9 +458,10 @@ function getColorHexRangeMaps(document) {
     const g = parseInt(hex.substring(2, 4), 16) / 255;
     const b = parseInt(hex.substring(4, 6), 16) / 255;
 
-    map["color"] = new vscode.Color(r, g, b, 1);
-    map["range"] = new vscode.Range(start, end);
-    map_list.push(map);
+    map_list.push({
+      color: new vscode.Color(r, g, b, 1),
+      range: new vscode.Range(start, end),
+    });
   }
   return map_list;
 }
