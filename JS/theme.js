@@ -65,7 +65,7 @@ class PythonSyntaxHighlighter {
     // this._setDecorations(editor, text, reMagicMethod, this.magicMethodStyle);
     // this._setDecorations(editor, text, a, this.importNameStyle);
 
-    this._mergeRegexWithoutOverlap([rePrivateVar, rePrivateMethod], text);
+    // this._mergeRegexWithoutOverlap([rePrivateVar, rePrivateMethod], text);
   }
 
   // 合并正则表达式，避免重叠

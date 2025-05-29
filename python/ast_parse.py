@@ -94,8 +94,8 @@ class Range:
         """
         if self._tree is None:
             return []
-        self._get_classes_name_and_range()
-        self._get_imports_name_and_range()
+        self._scan_class_names_range()
+        self._scan_import_names_range()
         return [
             {
                 "class": self._classes_range_map[name],
@@ -105,7 +105,7 @@ class Range:
             if name in self._classes_range_map
         ]
 
-    def _get_classes_name_and_range(self):
+    def _scan_class_names_range(self):
         """
         提取类名及其在源代码中的范围。
         """
@@ -115,41 +115,6 @@ class Range:
                 s = self._text.find(node.name, line_start)
                 e = s + len(node.name)
                 self._classes_range_map[node.name] = (s, e)
-
-    def _get_imports_name_and_range(self) -> None:
-        """
-        提取导入模块名及其在源代码中的范围。
-        """
-        for node in ast.walk(self._tree):  # 遍历 AST 节点
-            if isinstance(node, ast.Import):
-                for name in node.names:
-                    if name.asname:
-                        line_start = self.index_of_text(name.lineno, name.col_offset)
-                        if exp := re.match(r"(.*?as\s+)\w+", self._text[line_start:]):
-                            s = line_start + exp.group(1).__len__()
-                        else:
-                            s = self._text.find(name.asname, line_start)
-                        e = s + len(name.asname)
-                        self._imports_range_map[name.asname] = (s, e)
-                    else:
-                        s = self.index_of_text(name.lineno, name.col_offset)
-                        e = s + len(name.name)
-                        self._imports_range_map[name.name] = (s, e)
-            elif isinstance(node, ast.ImportFrom):
-                for name in node.names:
-                    if name.asname:
-                        line_start = self.index_of_text(name.lineno, name.col_offset)
-                        if exp := re.match(r"(.*?as\s+)\w+", self._text[line_start:]):
-                            s = line_start + exp.group(1).__len__()
-                        else:
-                            s = self._text.find(name.asname, line_start)
-                        e = s + len(name.asname)
-                        self._imports_range_map[name.asname] = (s, e)
-                    else:
-                        if name.name != "*":
-                            s = self.index_of_text(name.lineno, name.col_offset)
-                            e = s + len(name.name)
-                            self._imports_range_map[name.name] = (s, e)
 
     def index_of_text(self, lineno: int, col_offset: int) -> int:
         """
@@ -261,23 +226,45 @@ class Range:
 
         return None
 
-    def get_import_names_range(self):
+    def _split_by_dot(self, string: str, start: int):
+        index_list = []
+        for p in string.split("."):
+            p_len = len(p)
+            index_list.append((start, start + p_len))
+            start += p_len + 1
+        return index_list
+
+    def _scan_import_names_range(self) -> None:
         if self._tree is None:
             return
-        mode = "asname first"
-        # self._get_imports_name_and_range()
-        # print(self._imports_range_map)
-        # return
-        map_range = {}
         for node in ast.walk(self._tree):
             if isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
                 for n in node.names:
                     if n.name != "*":
-                        print(n.name, n.asname)
-                        
-                        s = self.index_of_text(n.lineno, n.col_offset)
-                        e = s + len(n.name)
-                        # print(f"{{{self._text[s:e]}}}")
+                        node_start = self.index_of_text(node.lineno, node.col_offset)
+                        node_end = self.index_of_text(
+                            node.end_lineno, node.end_col_offset
+                        )
+                        text = self._text[node_start:node_end]
+                        name_start = node_start + text.find(n.name)
+                        name_end = name_start + len(n.name)
+                        if n.asname:
+                            if exp := re.search(r"(\s+as\s+)(\w+)", text):
+                                asname_start = name_end + len(exp.group(1))
+                                asname_end = asname_start + len(exp.group(2))
+                                self._imports_range_map[n.name] = {
+                                    "name": (name_start, name_end),
+                                    "asname": (asname_start, asname_end),
+                                }
+                        else:
+                            self._imports_range_map[n.name] = {
+                                "name": (name_start, name_end)
+                            }
+
+    def _scan_from_moudle(self) -> None:
+        if self._tree is None:
+            return
+        # for node in ast.walk(self._tree):
 
 
 if __name__ == "__main__":
@@ -293,4 +280,5 @@ if __name__ == "__main__":
     #     parent_class = attr.get("parent_class", "未知")
     #     print(f"属性路径: {attr['path']}, 所属类: {parent_class}, 行号: {attr['line']}")
 
-    rg.get_import_names_range()
+    # rg.get_import_names_range()
+    print(list(rg._split_by_dot("import os.path.join", 0)))

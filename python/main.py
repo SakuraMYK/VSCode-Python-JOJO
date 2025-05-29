@@ -26,7 +26,7 @@ def main():
     elif args.mode == "get_modules_with_name_conflicts":
         result = myRange.get_modules_with_name_conflicts()
     elif args.mode == "test":
-        myRange.test()
+        result = [None]
     elif args.mode == "color_picker":
         picker = ColorPicker(init_color=args.input_color)
         result = picker.get_result()
