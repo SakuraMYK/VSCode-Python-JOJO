@@ -72,27 +72,27 @@ class ColorPicker {
       if (!this.currentEditor) return [];
 
       // 获取可见范围
-      const visibleRange = this.currentEditor.visibleRanges;
+      // const visibleRange = this.currentEditor.visibleRanges;
 
-      // 如果文档、版本或可见范围与缓存相同，则返回缓存的颜色信息
-      if (
-        this.lastDocument === document &&
-        this.lastVersion === document.version &&
-        this._areRangesEqual(this.lastVisibleRanges, visibleRange)
-      ) {
-        return this.lastColorInformations;
-      } else {
-        const colorAndRanges = this._getColorAndRangeMaps(document);
+      // // 如果文档、版本或可见范围与缓存相同，则返回缓存的颜色信息
+      // if (
+      //   this.lastDocument === document &&
+      //   this.lastVersion === document.version &&
+      //   this._areRangesEqual(this.lastVisibleRanges, visibleRange)
+      // ) {
+      //   return this.lastColorInformations;
+      // } else {
+      const colorAndRanges = this._getColorAndRangeMaps(document);
 
-        // 更新缓存
-        this.lastDocument = document;
-        this.version = document.version;
-        this.lastColorInformations = colorAndRanges.map(
-          (item) => new vscode.ColorInformation(item.range, item.color)
-        );
+      // 更新缓存
+      this.lastDocument = document;
+      this.version = document.version;
+      this.lastColorInformations = colorAndRanges.map(
+        (item) => new vscode.ColorInformation(item.range, item.color)
+      );
 
-        return this.lastColorInformations;
-      }
+      return this.lastColorInformations;
+      // }
     } catch (error) {
       console.error(error);
       return []; // 返回空数组表示没有颜色信息
@@ -110,22 +110,21 @@ class ColorPicker {
       const { document, range } = context;
       const colorString = document.getText(range);
       let a;
-      let match;
+      const r = color.red * 255;
+      const g = color.green * 255;
+      const b = color.blue * 255;
 
-      // if ((match = reAlphafloat.exec(colorString))) {
-      //   const alpha = parseFloat(match[1]);
-      //   if (alpha == 1) {
-      //     a = 255;
-      //   } else {
-      //     a = alpha * 255;
-      //   }
-      // }
+      if (colorString.startsWith("rgba")) {
+        const match = reAlphafloat.exec(colorString);
+        const alpha = parseFloat(match[1]);
+        if (alpha == 1) {
+          a = 255;
+        } else {
+          a = alpha * 255;
+        }
+      }
 
-      // const r = color.red * 255;
-      // const g = color.green * 255;
-      // const b = color.blue * 255;
-
-      console.error(color.red, color.green, color.blue, color.alpha);
+      // console.error(color.red, color.green, color.blue, color.alpha);
 
       // this.currentEditor.setDecorations(
       //   vscode.window.createTextEditorDecorationType({
@@ -137,7 +136,7 @@ class ColorPicker {
         new vscode.ColorPresentation(this._colorToString(context, color)),
       ];
     } catch (error) {
-      console.error(error);
+      vscode.window.showErrorMessage(error.message);
     }
   }
 
@@ -171,7 +170,6 @@ class ColorPicker {
         maps.push(get);
       }
     }
-
     return maps;
   }
 
@@ -452,7 +450,6 @@ function getColorHexRangeMaps(document) {
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
-    const map = {};
     const hex = match[0].substring(1);
     const r = parseInt(hex.substring(0, 2), 16) / 255;
     const g = parseInt(hex.substring(2, 4), 16) / 255;
