@@ -116,7 +116,7 @@ class Range:
                 e = s + len(node.name)
                 self._classes_range_map[node.name] = (s, e)
 
-    def _get_imports_name_and_range(self):
+    def _get_imports_name_and_range(self) -> None:
         """
         提取导入模块名及其在源代码中的范围。
         """
@@ -261,17 +261,36 @@ class Range:
 
         return None
 
+    def get_import_names_range(self):
+        if self._tree is None:
+            return
+        mode = "asname first"
+        # self._get_imports_name_and_range()
+        # print(self._imports_range_map)
+        # return
+        map_range = {}
+        for node in ast.walk(self._tree):
+            if isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
+                for n in node.names:
+                    if n.name != "*":
+                        print(n.name, n.asname)
+                        
+                        s = self.index_of_text(n.lineno, n.col_offset)
+                        e = s + len(n.name)
+                        # print(f"{{{self._text[s:e]}}}")
+
 
 if __name__ == "__main__":
-    py = "f:/下载/main.py"
     py = "f:/下载/dropdown.py"
-    py = "F:\下载\dropdown copy.py"
-    py = r"F:\下载\button.py"
+
     with open(py, "r", encoding="utf-8") as f:
         text = f.read()
 
     rg = Range(text)
-    attr_calls = rg.get_all_attr()
-    for attr in attr_calls:
-        parent_class = attr.get("parent_class", "未知")
-        print(f"属性路径: {attr['path']}, 所属类: {parent_class}, 行号: {attr['line']}")
+
+    # attr_calls = rg.get_all_attr()
+    # for attr in attr_calls:
+    #     parent_class = attr.get("parent_class", "未知")
+    #     print(f"属性路径: {attr['path']}, 所属类: {parent_class}, 行号: {attr['line']}")
+
+    rg.get_import_names_range()

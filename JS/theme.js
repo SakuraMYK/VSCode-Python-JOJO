@@ -1,4 +1,5 @@
 const vscode = require("vscode");
+const { getPythonScriptResult } = require("./runPython.js");
 
 async function applyTheme(themeName) {
   console.error("Applying: ", themeName);
@@ -39,17 +40,20 @@ class PythonSyntaxHighlighter {
       color: "#67B8EA",
       fontWeight: "bold",
       fontStyle: "",
+      backgroundColor: "#fff", // 背景色
     });
   }
 
-  update(editor) {
+  async update(editor) {
     const rePrivateVar = /(self\s*\.\s*)(_\w+)/g;
     const rePrivateMethod = /(def\s+)(_(?!_)\w+)/g;
     const reMagicMethod = /(def\s+)(__\w+__)/g;
-    const reImportName =
-      /(import\s+)([\.\w]+)\s*(?!as)/g;
+
+    const reImportNameNotAs = /(?<!#.*)import\s+([\w\.]+)/g;
 
     const text = editor.document.getText();
+
+    const ranges = await getPythonScriptResult(editor.document,'test');
 
     // this._setDecorations(editor, text, rePrivateVar, this.privateVarStyle);
     // this._setDecorations(
@@ -59,18 +63,33 @@ class PythonSyntaxHighlighter {
     //   this.privateMethodStyle
     // );
     // this._setDecorations(editor, text, reMagicMethod, this.magicMethodStyle);
-    this._setDecorations(editor, text, reImportName, this.importNameStyle);
+    // this._setDecorations(editor, text, a, this.importNameStyle);
+
+    this._mergeRegexWithoutOverlap([rePrivateVar, rePrivateMethod], text);
+  }
+
+  // 合并正则表达式，避免重叠
+  _mergeRegexWithoutOverlap(regexes, text) {
+    for (const regex of regexes) {
+      const matches = text.matchAll(regex);
+      if (matches) {
+        for (const match of matches) {
+          console.error(match);
+        }
+      }
+    }
   }
 
   _setDecorations(editor, text, regex, style) {
     const decorations = [];
     let match;
-    console.error(`regex: ${regex}`);
 
     while ((match = regex.exec(text)) !== null) {
       const start = match.index + match[1].length;
       const end = start + match[2].length;
-      console.error(`match: ${match[2]}`);
+      console.error(`===========================`);
+      console.error(`match1: ${match[1]}`);
+      console.error(`match2: ${match[2]}`);
       decorations.push({
         range: new vscode.Range(
           editor.document.positionAt(start),
