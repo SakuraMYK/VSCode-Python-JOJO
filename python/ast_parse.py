@@ -226,7 +226,7 @@ class Range:
 
         return None
 
-    def _split_by_dot(self, string: str, start: int):
+    def _split_by_dot(self, string: str, start: int) -> list[tuple[int, int]]:
         index_list = []
         for p in string.split("."):
             p_len = len(p)
@@ -235,30 +235,52 @@ class Range:
         return index_list
 
     def _scan_import_names_range(self) -> None:
+        # 如果树为空，则返回
         if self._tree is None:
             return
+        # 遍历树中的每个节点
         for node in ast.walk(self._tree):
+            # 如果节点是导入或导入自节点
             if isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
+                # 遍历节点中的每个名称
                 for n in node.names:
-                    if n.name != "*":
+                    name = n.name
+                    # 如果名称不是通配符
+                    if name != "*":
+                        # 获取节点开始和结束的索引
                         node_start = self.index_of_text(node.lineno, node.col_offset)
                         node_end = self.index_of_text(
                             node.end_lineno, node.end_col_offset
                         )
+                        # 获取节点中的文本
                         text = self._text[node_start:node_end]
-                        name_start = node_start + text.find(n.name)
-                        name_end = name_start + len(n.name)
+                        # 获取名称开始和结束的索引
+                        name_start = node_start + text.find(name)
+                        name_end = name_start + len(name)
+                        # 如果名称有别名
                         if n.asname:
+                            # 如果文本中有别名
                             if exp := re.search(r"(\s+as\s+)(\w+)", text):
+                                # 获取别名开始和结束的索引
                                 asname_start = name_end + len(exp.group(1))
                                 asname_end = asname_start + len(exp.group(2))
-                                self._imports_range_map[n.name] = {
-                                    "name": (name_start, name_end),
+                                # 将名称和别名添加到导入范围映射中
+                                self._imports_range_map[name] = {
+                                    "name": (
+                                        self._split_by_dot(name, name_start)
+                                        if "." in name
+                                        else [(name_start, name_end)]
+                                    ),
                                     "asname": (asname_start, asname_end),
                                 }
+                        # 如果名称没有别名
                         else:
-                            self._imports_range_map[n.name] = {
-                                "name": (name_start, name_end)
+                            self._imports_range_map[name] = {
+                                "name": (
+                                    self._split_by_dot(name, name_start)
+                                    if "." in name
+                                    else [(name_start, name_end)]
+                                )
                             }
 
     def _scan_from_moudle(self) -> None:
@@ -280,5 +302,8 @@ if __name__ == "__main__":
     #     parent_class = attr.get("parent_class", "未知")
     #     print(f"属性路径: {attr['path']}, 所属类: {parent_class}, 行号: {attr['line']}")
 
-    # rg.get_import_names_range()
-    print(list(rg._split_by_dot("import os.path.join", 0)))
+    rg._scan_import_names_range()
+    import pprint
+
+    pprint.pprint(rg._imports_range_map)
+    # print(list(rg._split_by_dot("import os.path.join", 0)))
