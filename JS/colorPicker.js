@@ -50,6 +50,7 @@ class ColorPicker {
      * @type {vscode.Range[]}
      */
     this.lastVisibleRanges = [];
+    this.currentEditor = null;
   }
 
   /**
@@ -60,25 +61,23 @@ class ColorPicker {
   provideDocumentColors(document) {
     try {
       // 获取当前的活动编辑器
-      const activeEditor = vscode.window.activeTextEditor;
+      this.currentEditor = vscode.window.activeTextEditor;
 
       // 如果没有活动编辑器或文档不匹配，返回空数组，以提高性能
-      if (!activeEditor) return [];
+      if (!this.currentEditor) return [];
 
       // 获取可见范围
-      const visibleRange = activeEditor.visibleRanges;
-      const rangesEqual = this._areRangesEqual(
-        this.lastVisibleRanges,
-        visibleRange
-      );
+      const visibleRange = this.currentEditor.visibleRanges;
+
+      // 如果文档、版本或可见范围与缓存相同，则返回缓存的颜色信息
       if (
         this.lastDocument === document &&
         this.lastVersion === document.version &&
-        rangesEqual
+        this._areRangesEqual(this.lastVisibleRanges, visibleRange)
       ) {
         return this.lastColorInformations;
       } else {
-        const colorAndRanges = getColorAndRangeMaps(document);
+        const colorAndRanges = this._getColorAndRangeMaps(document);
 
         // 更新缓存
         this.lastDocument = document;
@@ -103,10 +102,57 @@ class ColorPicker {
    */
   async provideColorPresentations(color, context) {
     try {
-      return [new vscode.ColorPresentation(this.colorToString(context, color))];
+      const r = color.red * 255;
+      const g = color.green * 255;
+      const b = color.blue * 255;
+      const a = color.alpha;
+
+      this.currentEditor.setDecorations(
+        vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
+        }),
+        [context.range]
+      );
+      return [
+        new vscode.ColorPresentation(this._colorToString(context, color)),
+      ];
     } catch (error) {
       console.error(error);
     }
+  }
+
+  // 获取颜色和范围
+  _getColorAndRangeMaps(document) {
+    const hexMaps = getColorHexRangeMaps(document);
+    const rgbMaps = getColorRGBRangeMaps(document);
+    const rgbaMaps = [
+      ...getColorRGBA_Float_RangeMaps(document),
+      ...getColorRGBA_Int_RangeMaps(document),
+    ];
+
+    const maps = [];
+
+    maps.push(...hexMaps, ...rgbMaps, ...rgbaMaps);
+
+    for (const get of getColorNoPrefixRGBRangeMaps(document)) {
+      if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+        maps.push(get);
+      }
+    }
+
+    for (const get of getColorNoPrefixRGBA_Float_RangeMaps(document)) {
+      if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+        maps.push(get);
+      }
+    }
+
+    for (const get of getColorNoPrefixRGBA_Int_RangeMaps(document)) {
+      if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+        maps.push(get);
+      }
+    }
+
+    return maps;
   }
 
   /**
@@ -128,13 +174,14 @@ class ColorPicker {
 
     return true;
   }
+
   /**
    * 将颜色转换为字符串表示形式。
    * @param {object} context - 包含文档和范围的对象。
    * @param {vscode.Color} color - 要转换的颜色。
    * @returns {string} - 颜色的字符串表示形式。
    */
-  colorToString(context, color) {
+  _colorToString(context, color) {
     const { document, range } = context;
     const string = document.getText(range);
 
@@ -186,39 +233,6 @@ function rangesEqual(range1, range2) {
  * @param {vscode.TextDocument} document - 文档对象。
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
-// 获取颜色和范围
-function getColorAndRangeMaps(document) {
-  const hexMaps = getColorHexRangeMaps(document);
-  const rgbMaps = getColorRGBRangeMaps(document);
-  const rgbaMaps = [
-    ...getColorRGBA_Float_RangeMaps(document),
-    ...getColorRGBA_Int_RangeMaps(document),
-  ];
-
-  const maps = [];
-
-  maps.push(...hexMaps, ...rgbMaps, ...rgbaMaps);
-
-  for (const get of getColorNoPrefixRGBRangeMaps(document)) {
-    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-      maps.push(get);
-    }
-  }
-
-  for (const get of getColorNoPrefixRGBA_Float_RangeMaps(document)) {
-    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-      maps.push(get);
-    }
-  }
-
-  for (const get of getColorNoPrefixRGBA_Int_RangeMaps(document)) {
-    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-      maps.push(get);
-    }
-  }
-
-  return maps;
-}
 
 /**
  * 从文档中提取 rgb(...) 格式的颜色及其范围。
@@ -463,10 +477,6 @@ function forceRefreshColors(document) {
       vscode.commands.executeCommand("undo");
     }, 0);
   });
-}
-
-function textBackgroundColor () {
- 
 }
 
 module.exports = { ColorPicker, forceRefreshColors };
