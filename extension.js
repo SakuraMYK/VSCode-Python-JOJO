@@ -173,12 +173,14 @@ async function activate(context) {
         return actions;
       },
     }),
+
     vscode.workspace.onDidOpenTextDocument((doc) => {
       checkPythonCode(doc);
       const editor = vscode.window.activeTextEditor;
       if (editor && editor.document.languageId === "python")
         pyHighlighter.update(editor);
     }),
+
     vscode.workspace.onDidChangeTextDocument((event) => {
       checkPythonCode(event.document);
       const editor = vscode.window.activeTextEditor;
@@ -193,9 +195,11 @@ async function activate(context) {
         }, 150);
       }
     }),
+
     vscode.workspace.onDidCloseTextDocument((doc) => {
       diagnosticCollection.delete(doc.uri);
     }),
+
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (
         editor &&
@@ -206,6 +210,7 @@ async function activate(context) {
         pyHighlighter.update(editor);
       }
     }),
+
     vscode.commands.registerCommand(
       "pycodejojo.propertyGenerator",
       (document, range) => {

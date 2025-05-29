@@ -465,4 +465,8 @@ function forceRefreshColors(document) {
   });
 }
 
+function textBackgroundColor () {
+ 
+}
+
 module.exports = { ColorPicker, forceRefreshColors };

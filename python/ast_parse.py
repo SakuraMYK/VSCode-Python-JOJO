@@ -16,8 +16,8 @@ class Range:
         self._text: str = text
         self._tree: ast.AST = None
 
-        self._classes_range_map: dict[str, tuple[int, int]] = {}
-        self._imports_range_map: dict[str, tuple[int, int]] = {}
+        self._classes_range_map = {}
+        self._imports_range_map = {}
 
         try:
             self._tree = ast.parse(text)
@@ -104,17 +104,6 @@ class Range:
             for name in self._imports_range_map
             if name in self._classes_range_map
         ]
-
-    def _scan_class_names_range(self):
-        """
-        提取类名及其在源代码中的范围。
-        """
-        for node in ast.walk(self._tree):  # 遍历 AST 节点
-            if isinstance(node, ast.ClassDef):
-                line_start = self.index_of_text(node.lineno, node.col_offset)
-                s = self._text.find(node.name, line_start)
-                e = s + len(node.name)
-                self._classes_range_map[node.name] = (s, e)
 
     def index_of_text(self, lineno: int, col_offset: int) -> int:
         """
@@ -283,10 +272,25 @@ class Range:
                                 )
                             }
 
+    def _scan_class_names_range(self) -> None:
+        """
+        提取类名及其在源代码中的范围。
+        """
+        for node in ast.walk(self._tree):  # 遍历 AST 节点
+            if isinstance(node, ast.ClassDef):
+                line_start = self.index_of_text(node.lineno, node.col_offset)
+                s = self._text.find(node.name, line_start)
+                e = s + len(node.name)
+                self._classes_range_map[node.name] = (s, e)
+
     def _scan_from_moudle(self) -> None:
         if self._tree is None:
             return
         # for node in ast.walk(self._tree):
+
+    def get_import_names_range(self) -> dict[str, dict[str, any]]:
+        self._scan_import_names_range()
+        return self._imports_range_map
 
 
 if __name__ == "__main__":

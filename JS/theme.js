@@ -40,7 +40,7 @@ class PythonSyntaxHighlighter {
       color: "#67B8EA",
       fontWeight: "bold",
       fontStyle: "",
-      backgroundColor: "#fff", // 背景色
+      // backgroundColor: "#fff", // 背景色
     });
   }
 
@@ -53,7 +53,33 @@ class PythonSyntaxHighlighter {
 
     const text = editor.document.getText();
 
-    const ranges = await getPythonScriptResult(editor.document,'test');
+    const importNamesRanges = await getPythonScriptResult(
+      editor.document,
+      "get_import_names_range"
+    );
+
+    const editorRanges = [];
+    Object.values(importNamesRanges).forEach((range) => {
+      if (range.asname) {
+        editorRanges.push(
+          new vscode.Range(
+            editor.document.positionAt(range.asname[0]),
+            editor.document.positionAt(range.asname[1])
+          )
+        );
+      }
+      range.name.forEach((array) => {
+        editorRanges.push(
+          new vscode.Range(
+            editor.document.positionAt(array[0]),
+            editor.document.positionAt(array[1])
+          )
+        );
+      });
+    });
+
+    console.error("range");
+    editor.setDecorations(this.importNameStyle, editorRanges);
 
     // this._setDecorations(editor, text, rePrivateVar, this.privateVarStyle);
     // this._setDecorations(

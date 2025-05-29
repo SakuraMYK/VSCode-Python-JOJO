@@ -25,8 +25,8 @@ def main():
         result = myRange.get_classes_without_parent_init_call()
     elif args.mode == "get_modules_with_name_conflicts":
         result = myRange.get_modules_with_name_conflicts()
-    elif args.mode == "test":
-        result = [None]
+    elif args.mode == "get_import_names_range":
+        result = myRange.get_import_names_range()
     elif args.mode == "color_picker":
         picker = ColorPicker(init_color=args.input_color)
         result = picker.get_result()
