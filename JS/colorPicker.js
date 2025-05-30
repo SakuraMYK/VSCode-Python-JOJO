@@ -2,20 +2,14 @@ const vscode = require("vscode");
 
 const reRGB = /rgb\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
 
-const NoPrefix_reRGB =
+const reRGBA =
+  /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3}|1|0|0\.\d+)\s*\)/gs;
+
+const reTupleRGB =
   /(?<!rgb)(?<!rgba)\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
 
-const NoPrefix_reRGBA_Int =
-  /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
-
-const NoPrefix_reRGBA_Float =
-  /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1|0|0\.\d+)\s*\)/gs;
-
-const reRGBA_Int =
-  /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/gs;
-
-const reRGBA_Float =
-  /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1|0|0\.\d+)\s*\)/gs;
+const reTupleRGBA =
+  /(?<!rgb)(?<!rgba)\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3}|1|0|0\.\d+)\s*\)/gs;
 
 const reHEX = /#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b/gs;
 
@@ -208,16 +202,14 @@ function applyBGColorToText(document) {
 
 // 获取颜色和范围
 function getColorAndRangeMaps(document) {
-  const hexMaps = getColorHexRangeMaps(document);
-  const rgbMaps = getColorRGBRangeMaps(document);
+  const hexMaps = getHexMaps(document);
+  const rgbMaps = getRGBMaps(document);
   const rgbaMaps = [
     ...getColorRGBA_Float_RangeMaps(document),
-    ...getColorRGBA_Int_RangeMaps(document),
+    ...getRGBAMaps(document),
   ];
 
-  getColorNoPrefixRGBRangeMaps;
-  getColorNoPrefixRGBARangeMaps;
-  getColorNoPrefixRGBAngeMaps;
+  getTupleRGBMaps;
 
   return maps;
 }
@@ -231,18 +223,7 @@ function rangesEqual(range1, range2) {
   );
 }
 
-/**
- * 从文档中提取所有颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-
-/**
- * 从文档中提取 rgb(...) 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorRGBRangeMaps(document) {
+function getRGBMaps(document) {
   const maps = {};
   const matches = [...document.getText().matchAll(reRGB)];
 
@@ -268,14 +249,43 @@ function getColorRGBRangeMaps(document) {
   return maps;
 }
 
-/**
- * 从文档中提取 rgb(...) 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorNoPrefixRGBRangeMaps(document) {
+function getRGBAMaps(document) {
   const maps = {};
-  const matches = [...document.getText().matchAll(NoPrefix_reRGB)];
+  const matches = [...document.getText().matchAll(reRGBA)];
+  for (const match of matches) {
+    const start = document.positionAt(match.index);
+    const end = document.positionAt(match.index + match[0].length);
+    const R = parseInt(match[1]);
+    const G = parseInt(match[2]);
+    const B = parseInt(match[3]);
+    const A = parseInt(match[4]);
+    if (
+      R >= 0 &&
+      R <= 255 &&
+      G >= 0 &&
+      G <= 255 &&
+      B >= 0 &&
+      B <= 255 &&
+      A >= 0 &&
+      A <= 255
+    ) {
+      maps[(start, end)] = {
+        range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          borderRadius: borderRadius,
+        }),
+      };
+    }
+  }
+  return maps;
+}
+
+function getTupleRGBMaps(document) {
+  const maps = {};
+  const matches = [...document.getText().matchAll(reTupleRGB)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
@@ -298,53 +308,9 @@ function getColorNoPrefixRGBRangeMaps(document) {
   return maps;
 }
 
-/**
- * 从文档中提取 rgba(...) 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorRGBA_Int_RangeMaps(document) {
+function getTupleRGBAMaps(document) {
   const maps = {};
-  const matches = [...document.getText().matchAll(reRGBA_Int)];
-  for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
-    const R = parseInt(match[1]);
-    const G = parseInt(match[2]);
-    const B = parseInt(match[3]);
-    const A = parseInt(match[4]);
-    if (
-      R >= 0 &&
-      R <= 255 &&
-      G >= 0 &&
-      G <= 255 &&
-      B >= 0 &&
-      B <= 255 &&
-      A >= 0 &&
-      A <= 255
-    ) {
-      maps[(start, end)] = {
-        range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, ${A})`,
-        color: new vscode.Color(R / 255, G / 255, B / 255, A),
-        decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
-          borderRadius: borderRadius,
-        }),
-      };
-    }
-  }
-  return maps;
-}
-
-/**
- * 从文档中提取 rgba(...) 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorRGBA_Float_RangeMaps(document) {
-  const maps = {};
-  const matches = [...document.getText().matchAll(reRGBA_Float)];
+  const matches = [...document.getText().matchAll(reTupleRGBA)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
@@ -376,90 +342,7 @@ function getColorRGBA_Float_RangeMaps(document) {
   return maps;
 }
 
-/**
- * 从文档中提取 rgb(...) 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorNoPrefixRGBA_Int_RangeMaps(document) {
-  const maps = {};
-  const matches = [...document.getText().matchAll(NoPrefix_reRGBA_Int)];
-  for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
-    const R = parseInt(match[1]);
-    const G = parseInt(match[2]);
-    const B = parseInt(match[3]);
-    const A = parseInt(match[4]);
-    if (
-      R >= 0 &&
-      R <= 255 &&
-      G >= 0 &&
-      G <= 255 &&
-      B >= 0 &&
-      B <= 255 &&
-      A >= 0 &&
-      A <= 255
-    ) {
-      maps[(start, end)] = {
-        range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, ${A})`,
-        color: new vscode.Color(R / 255, G / 255, B / 255, A / 255),
-        decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
-          borderRadius: borderRadius,
-        }),
-      };
-    }
-  }
-  return maps;
-}
-
-/**
- * 从文档中提取 rgb(...) 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorNoPrefixRGBA_Float_RangeMaps(document) {
-  const maps = {};
-  const matches = [...document.getText().matchAll(NoPrefix_reRGBA_Float)];
-  for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
-    const R = parseInt(match[1]);
-    const G = parseInt(match[2]);
-    const B = parseInt(match[3]);
-    const A = parseFloat(match[4]);
-    if (
-      R >= 0 &&
-      R <= 255 &&
-      G >= 0 &&
-      G <= 255 &&
-      B >= 0 &&
-      B <= 255 &&
-      A >= 0 &&
-      A <= 1
-    ) {
-      maps[(start, end)] = {
-        range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, ${A})`,
-        color: new vscode.Color(R / 255, G / 255, B / 255, A),
-        decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
-          borderRadius: borderRadius,
-        }),
-      };
-    }
-  }
-  return maps;
-}
-
-/**
- * 从文档中提取 #RRGGBB 格式的颜色及其范围。
- * @param {vscode.TextDocument} document - 文档对象。
- * @returns {Array} - 包含颜色和范围的对象数组。
- */
-function getColorHexRangeMaps(document) {
+function getHexMaps(document) {
   const maps = {};
   const matches = [...document.getText().matchAll(reHEX)];
   for (const match of matches) {
