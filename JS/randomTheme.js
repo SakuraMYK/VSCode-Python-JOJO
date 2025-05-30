@@ -1,19 +1,27 @@
 const fs = require("fs"); // 引入 fs 模块用于文件操作
 const path = require("path");
 
-function randomThemeFile(filePath = "../themes/radom.json") {
+function randomThemeFile() {
   try {
-    const themeJsonFile = path.join(__dirname, filePath);
+    const dir = "../themes";
+    const sourceFile = "dark.json";
+    const newFile = "random.json";
+
+    const themeJsonFile = path.join(__dirname, dir, sourceFile);
+    const newThemeFile = path.join(__dirname, dir, newFile);
+
     const reHexColor = new RegExp(
       /#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})/g
     );
     const reFontStyle = new RegExp(/"fontStyle"\s*:\s*"(.*)"/g);
+
     let text = fs.readFileSync(themeJsonFile, "utf-8");
 
+    text = text.replace("PyCodeJOJO Dark", "PyCodeJOJO Random");
     text = text.replace(reHexColor, () => randomHexColor());
     text = text.replace(reFontStyle, () => randomFontStyle());
 
-    fs.writeFileSync(themeJsonFile, text, "utf-8");
+    fs.writeFileSync(newThemeFile, text, "utf-8");
     // console.log(text);
   } catch (error) {
     console.error(error);
@@ -47,6 +55,8 @@ function randomFontStyle(
   // 如果没有选中任何样式，返回空字符串
   return `"fontStyle": "${selectedStyles.join(" ")}"`;
 }
+
+randomThemeFile();
 
 // 导出函数，以便在其他模块中使用
 module.exports = { randomThemeFile };
