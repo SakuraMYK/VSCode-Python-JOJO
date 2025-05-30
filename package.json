@@ -51,19 +51,23 @@
     "commands": [
       {
         "command": "pycodejojo.applyRandomTheme",
-        "title": "Random Theme"
+        "title": "Random Theme",
+        "category": "PyCodeJOJO"
       },
       {
         "command": "pycodejojo.applyDarkTheme",
-        "title": "PyCodeJOJO Dark"
+        "title": "Dark Theme",
+        "category": "PyCodeJOJO"
       },
       {
         "command": "pycodejojo.applyDark2Theme",
-        "title": "PyCodeJOJO Dark2"
+        "title": "Dark2 Theme",
+        "category": "PyCodeJOJO"
       },
       {
         "command": "pycodejojo.disableTheme",
-        "title": "Disabled"
+        "title": "Disabled Theme",
+        "category": "PyCodeJOJO"
       }
     ],
     "themes": [
