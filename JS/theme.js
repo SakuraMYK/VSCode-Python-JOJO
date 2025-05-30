@@ -1,10 +1,20 @@
 const vscode = require("vscode");
+const fs = require("fs");
+const path = require("path");
 const { getPythonScriptResult } = require("./runPython.js");
 
 async function applyTheme(themeName) {
-  console.error("Applying: ", themeName);
-  if (themeName === "Disabled") themeName = "Default Dark+";
-
+  console.info("Applying: ", themeName);
+  switch (themeName) {
+    case "Disabled":
+      themeName = "Default Dark+";
+      break;
+    case "PyCodeJOJO Random":
+      console.info("use Random theme");
+      await randomThemeFile();
+      break;
+  }
+  console.info("Applying theme: ", themeName);
   await vscode.workspace
     .getConfiguration()
     .update(
@@ -78,7 +88,6 @@ class PythonSyntaxHighlighter {
       });
     });
 
-    console.error("range");
     editor.setDecorations(this.importNameStyle, editorRanges);
 
     // this._setDecorations(editor, text, rePrivateVar, this.privateVarStyle);
@@ -125,6 +134,64 @@ class PythonSyntaxHighlighter {
     }
     editor.setDecorations(style, decorations);
   }
+}
+
+async function randomThemeFile() {
+  return new Promise((resolve, reject) => {
+    try {
+      const dir = "../themes";
+      const sourceFile = "dark.json";
+      const newFile = "random.json";
+
+      const themeJsonFile = path.join(__dirname, dir, sourceFile);
+      const newThemeFile = path.join(__dirname, dir, newFile);
+
+      const reHexColor = new RegExp(/"foreground"\s*:\s*"(.*)"/g);
+      const reFontStyle = new RegExp(/"fontStyle"\s*:\s*"(.*)"/g);
+
+      let text = fs.readFileSync(themeJsonFile, "utf-8");
+
+      text = text.replace("PyCodeJOJO Dark", "PyCodeJOJO Random");
+      text = text.replace(reHexColor, () => randomHexColor());
+      text = text.replace(reFontStyle, () => randomFontStyle());
+
+      fs.writeFileSync(newThemeFile, text, "utf-8");
+      setTimeout(resolve, 10);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+}
+
+function randomHexColor() {
+  return `"foreground": "${
+    "#" + Math.floor(Math.random() * 16777215).toString(16)
+  }"`;
+}
+
+function randomFontStyle(
+  weights = { italic: 1, bold: 1, underline: 1, normal: 1 }
+) {
+  const selectedStyles = [];
+
+  // 遍历每个样式，根据权重决定是否选中
+  for (const [style, weight] of Object.entries(weights)) {
+    // 跳过 normal，它不是实际的样式
+    if (style === "normal") continue;
+
+    // 根据权重计算被选中的概率
+    // 权重越高，被选中的概率越大
+    const probability = weight / (weight + 5); // 分母加5是为了控制概率范围
+
+    if (Math.random() < probability) {
+      selectedStyles.push(style);
+    }
+  }
+
+  // 返回选中的样式组合，用空格分隔
+  // 如果没有选中任何样式，返回空字符串
+  return `"fontStyle": "${selectedStyles.join(" ")}"`;
 }
 
 module.exports = { applyTheme, PythonSyntaxHighlighter };

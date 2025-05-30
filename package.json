@@ -53,7 +53,7 @@
             "PyCodeJOJO Random",
             "Disabled"
           ],
-          "default": "PyCodeJOJO Random",
+          "default": "PyCodeJOJO Dark2",
           "description": "选择 PyCodeJOJO 主题样式"
         },
         "pycodejojo.enableColorPicker": {
