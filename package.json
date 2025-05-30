@@ -16,18 +16,54 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "submenus": [
+      {
+        "id": "pycodejojo.themeMenu",
+        "label": "PyCodeJOJO"
+      }
+    ],
     "menus": {
       "editor/context": [
         {
-          "command": "pycodejojo.randomTheme",
+          "submenu": "pycodejojo.themeMenu",
           "group": "navigation"
+        }
+      ],
+      "pycodejojo.themeMenu": [
+        {
+          "command": "pycodejojo.randomTheme",
+          "group": "a@1"
+        },
+        {
+          "command": "pycodejojo.applyDarkTheme",
+          "group": "preset@1"
+        },
+        {
+          "command": "pycodejojo.applyDark2Theme",
+          "group": "preset@2"
+        },
+        {
+          "command": "pycodejojo.disableTheme",
+          "group": "control@1"
         }
       ]
     },
     "commands": [
       {
         "command": "pycodejojo.randomTheme",
-        "title": "random theme"
+        "title": "Random Theme"
+      },
+      {
+        "command": "pycodejojo.applyDarkTheme",
+        "title": "PyCodeJOJO Dark"
+      },
+      {
+        "command": "pycodejojo.applyDark2Theme",
+        "title": "PyCodeJOJO Dark2"
+      },
+      {
+        "command": "pycodejojo.disableTheme",
+        "title": "Disabled"
       }
     ],
     "themes": [
