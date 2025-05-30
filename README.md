@@ -1,8 +1,13 @@
 # PyCodeJOJO
 
+> **最新版本：v2025.5.10**  
+> **更新亮点：新增随机主题功能，优化颜色选择器体验**
+
 一个简洁实用的 VS Code Python 开发扩展，提供代码诊断、颜色选择器、属性生成器等辅助功能，帮助提升 Python 开发体验。
 
 A simple and practical VS Code Python development extension that provides code diagnostics, color picker, property generator and other helpful features to enhance your Python development experience.
+
+---
 
 ## ✨ 主要特性 / Main Features
 
@@ -10,8 +15,8 @@ A simple and practical VS Code Python development extension that provides code d
 
 - 支持多种颜色格式：`rgb()`, `rgba()`, `#hex`, `(r,g,b)`, `(r,g,b,a)`
 - Support multiple color formats: `rgb()`, `rgba()`, `#hex`, `(r,g,b)`, `(r,g,b,a)`
-- 实时颜色预览和编辑
-- Real-time color preview and editing
+- 实时颜色预览和编辑（新增透明度支持）
+- Real-time color preview and editing (new opacity support)
 - 自动检测代码中的颜色值
 - Automatically detect color values in code
 
@@ -30,107 +35,89 @@ A simple and practical VS Code Python development extension that provides code d
 - Automatically generate `@property` decorators for private attributes
 - 智能检测已存在的属性方法，避免重复生成
 - Intelligently detect existing property methods to avoid duplicate generation
-- 支持 getter 和 setter 方法自动生成
-- Support automatic generation of getter and setter methods
 
 ### 🎭 主题支持 / Theme Support
 
-- 内置 PyCodeJOJO Dark 主题
-- Built-in PyCodeJOJO Dark theme
-- 支持主题动态切换
-- Support dynamic theme switching
+- **新增随机主题**：每次启用生成独特配色方案（🎨 动态演示截图）
+- **New Random Theme**: Generate unique color schemes on demand (🎨 Live demo screenshot)
+- 内置三种专业主题：PyCodeJOJO Dark/Dark2/Random
+- Built-in three professional themes: PyCodeJOJO Dark/Dark2/Random
 
-### ⚙️ 设置功能开关 / Settings Toggle
+---
 
-> **提示 / Tip**: 用户可以通过 VS Code 的设置界面 (`Ctrl+,`) 开启或关闭扩展中的对应功能。
->
-> Users can enable or disable corresponding features in the extension through VS Code's settings interface (`Ctrl+,`).
+## 📷 可视化示例 / Visual Examples
+
+![颜色选择器演示](gif/colorPicker.gif)  
+_颜色格式自动识别与实时预览_  
+_Automatic color format recognition and real-time preview_
+
+![随机主题示例](gif/themeSwitching.gif)  
+_每次启用生成不同配色方案_  
+_Unique color scheme on each activation_
+
+### 🧩 语言支持 / Language Support
+
+- 🇺🇸 英语 / English
+- 🇨🇳 简体中文 / Simplified Chinese
+- 自动适配系统语言设置
+- Automatically adapts to system language settings
+
+---
 
 ## 📋 前置条件 / Prerequisites
 
-- **Python**: 系统需要安装 Python 环境（用于代码分析功能）
-- **Python**: Python environment must be installed on the system (for code analysis features)
+- **Python 3.7+** 环境（用于代码分析功能）
+- **Python 3.7+** environment (for code analysis features)
+
+---
 
 ## 🚀 安装使用 / Installation & Usage
 
-### 从 VS Code 插件市场安装 / Install from VS Code Marketplace
+### 市场安装 / Marketplace Installation
 
-1. 进入扩展面板 (`Ctrl+Shift+X`)
-   Open the Extensions panel (`Ctrl+Shift+X`)
+1. 打开扩展面板 (`Ctrl+Shift+X`)
+   Open Extensions panel (`Ctrl+Shift+X`)
 2. 搜索 "PyCodeJOJO"
    Search for "PyCodeJOJO"
-3. 点击安装
-   Click Install
+3. 点击安装按钮
+   Click Install button
 
 ### 手动安装 / Manual Installation
 
 1. 下载 `.vsix` 文件
-   Download the `.vsix` file
-2. 在 VS Code 中使用 `Extensions: Install from VSIX` 命令安装
-   Install using the `Extensions: Install from VSIX` command in VS Code
+   Download `.vsix` file
+2. 使用命令 `Extensions: Install from VSIX` 安装
+   Use command `Extensions: Install from VSIX` to install
 
-## 🎯 使用示例 / Usage Examples
+---
 
-### 颜色选择器 / Color Picker
+## 📈 版本更新 / Version Updates
 
-```python
-# 支持的颜色格式 / Supported color formats
-color1 = (255, 0, 0)              # RGB 元组 / RGB tuple
-color2 = (255, 0, 0, 234)         # RGBA 元组 / RGBA tuple
-color3 = (255, 0, 0, 0.5)         # RGBA 元组 / RGBA tuple
-color4 = rgb(255, 0, 0)           # RGB 函数 / RGB function
-color5 = rgba(255, 0, 0, 0.8)     # RGBA 函数 / RGBA function
-color6 = rgba(255, 0, 0, 229)     # RGBA 函数 / RGBA function
-color7 = #FF0000                  # 十六进制 / Hexadecimal
-```
+### v2025.5.10 新增
 
-### 属性生成器 / Property Generator
+- ✨ 新增随机主题生成功能（菜单路径：右键 → PyCodeJOJO → Random Theme）
+- 🎨 优化颜色选择器的透明度处理
+- 🧠 重构主题应用逻辑提升性能
 
-```python
-class MyClass:
-    def __init__(self):
-        self._name = "example"  # 选中此行，使用属性生成器
-                               # Select this line and use property generator
-        self._value = 42
+### v2025.5.9 亮点
 
-    # 自动生成的属性方法将插入到这里
-    # Auto-generated property methods will be inserted here
-```
+- 🌈 新增私有属性/方法语法高亮
+- 📚 增强 JavaScript 语法支持
+- 🎨 优化代码高亮显示效果
 
-### 代码诊断示例 / Code Diagnostics Examples
+---
 
-```python
-# 循环变量冲突检测 / Loop variable conflict detection
-items = [1, 2, 3]
-for items in items:  # ⚠️ 警告：变量名冲突 / Warning: Variable name conflict
-    print(items)
+## 📚 社区支持 / Community Support
 
-# 导入冲突检测 / Import conflict detection
-from math import pi
-class pi:  # ⚠️ 警告：与导入模块冲突 / Warning: Conflicts with imported module
-    pass
+遇到问题？请提交 Issues 或访问：
+Need help? Please submit Issues or visit:
 
-# 缺失 super().__init__() 检测 / Missing super().__init__() detection
-class Parent:
-    def __init__(self):
-        pass
+[GitHub Issues 讨论区](https://github.com/SakuraMYK/VSCode-Python-JOJO/issues)  
+[VS Code 插件市场页面](https://marketplace.visualstudio.com/items?itemName=PyJOJO.pycodejojo)
 
-class Child(Parent):
-    def __init__(self):  # ⚠️ 警告：缺少 super().__init__() / Warning: Missing super().__init__()
-        self.value = 1
-```
+---
 
-## 🌐 多语言支持 / Multi-language Support
+## 📄 完整更新日志 / Full Changelog
 
-- 🇺🇸 English
-- 🇨🇳 简体中文 / Simplified Chinese
-
-## 🐛 问题反馈 / Issue Reporting
-
-欢迎提交 Issue 和 Pull Request！
-Welcome to submit Issues and Pull Requests!
-
-## 📝 更新日志 / Changelog
-
-查看 [CHANGELOG.md](CHANGELOG.md) 了解详细的版本更新信息。
-See [CHANGELOG.md](CHANGELOG.md) for detailed version update information.
+详见 [CHANGELOG.md](CHANGELOG.md) 查看所有版本更新详情  
+See [CHANGELOG.md](CHANGELOG.md) for complete version update details
