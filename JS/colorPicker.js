@@ -17,13 +17,18 @@ const reRGBA_Int =
 const reRGBA_Float =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1|0|0\.\d+)\s*\)/gs;
 
-const reHEX = /#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b/gs;
+const reHEX = /#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b/gs;
 
 const reAlphaFloat =
   /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(1|0|0\.\d+)\s*\)/;
+
 const reAlphaInt =
   /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(\d{1,3})\s*\)/;
+
 const reHexAlpha = /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})\b/gs;
+
+const borderRadius = "9px";
+
 /**
  * ColorPicker 类实现 DocumentColorProvider 接口，用于在 VS Code 中提供颜色拾取功能。
  */
@@ -32,30 +37,27 @@ class ColorPicker {
    * 构造函数，初始化缓存属性。
    */
   constructor() {
-    /**
-     * 缓存上一次处理的文档。
-     * @type {vscode.TextDocument | null}
-     */
-    this.lastDocument = null;
+    this.colorDecorationType = null;
+    this.backgroundDecorationTypes = []; // 跟踪所有创建的背景装饰器
+    this._decorationStats = {
+      created: 0,
+      disposed: 0,
+      active: 0,
+    };
+  }
 
-    /**
-     * 缓存上一次处理的颜色信息。
-     * @type {vscode.ColorInformation[]}
-     */
-    this.lastColorInformations = [];
-
-    /**
-     * 缓存上一次处理的文档版本。
-     * @type {number}
-     */
-    this.lastVersion = -1;
-
-    /**
-     * 缓存上一次处理的可见范围。
-     * @type {vscode.Range[]}
-     */
-    this.lastVisibleRanges = [];
-    this.currentEditor = null;
+  // 添加一个方法来追踪装饰器统计信息
+  _trackDecoration(action) {
+    if (action === "create") {
+      this._decorationStats.created++;
+      this._decorationStats.active++;
+    } else if (action === "dispose") {
+      this._decorationStats.disposed++;
+      this._decorationStats.active--;
+    }
+    console.info(
+      `装饰器统计 - 创建: ${this._decorationStats.created}, 销毁: ${this._decorationStats.disposed}, 活动: ${this._decorationStats.active}`
+    );
   }
 
   /**
@@ -65,34 +67,14 @@ class ColorPicker {
    */
   provideDocumentColors(document) {
     try {
-      // 获取当前的活动编辑器
-      this.currentEditor = vscode.window.activeTextEditor;
-
       // 如果没有活动编辑器或文档不匹配，返回空数组，以提高性能
-      if (!this.currentEditor) return [];
+      if (!vscode.window.activeTextEditor) return [];
 
-      // 获取可见范围
-      // const visibleRange = this.currentEditor.visibleRanges;
+      const colorAndRanges = getColorAndRangeMaps(document);
 
-      // // 如果文档、版本或可见范围与缓存相同，则返回缓存的颜色信息
-      // if (
-      //   this.lastDocument === document &&
-      //   this.lastVersion === document.version &&
-      //   this._areRangesEqual(this.lastVisibleRanges, visibleRange)
-      // ) {
-      //   return this.lastColorInformations;
-      // } else {
-      const colorAndRanges = this._getColorAndRangeMaps(document);
-
-      // 更新缓存
-      this.lastDocument = document;
-      this.version = document.version;
-      this.lastColorInformations = colorAndRanges.map(
+      return colorAndRanges.map(
         (item) => new vscode.ColorInformation(item.range, item.color)
       );
-
-      return this.lastColorInformations;
-      // }
     } catch (error) {
       console.error(error);
       return []; // 返回空数组表示没有颜色信息
@@ -117,9 +99,9 @@ class ColorPicker {
 
       if (colorString.startsWith("rgba")) {
         if ((match = reAlphaFloat.exec(colorString))) {
-          a = match[1] *255;
+          a = match[1];
         } else if ((match = reAlphaInt.exec(colorString))) {
-          a = match[1] ;
+          a = match[1] / 255;
         } else {
           console.error(
             "provideColorPresentations colorString Invalid alpha value"
@@ -130,12 +112,11 @@ class ColorPicker {
         a = 1;
       } else if (colorString.startsWith("(")) {
         if ((match = reAlphaFloat.exec(colorString))) {
-          a = match[1] *255
+          a = match[1];
         } else if ((match = reAlphaInt.exec(colorString))) {
-          a = match[1]  ;
+          a = match[1] / 255;
         } else {
-          console.error(`colorPicker: Invalid alpha value in ${colorString}`);
-          return;
+          a = 255;
         }
       } else if (colorString.startsWith("#")) {
         if ((match = reHexAlpha.exec(colorString))) {
@@ -146,14 +127,22 @@ class ColorPicker {
         return;
       }
 
-      // console.error(color.red, color.green, color.blue, color.alpha);
+      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+      const fontColor = brightness > 186 ? "black" : "white";
+      // console.info("Brightness: ", brightness, "Font Color: ", fontColor);
 
-      this.currentEditor.setDecorations(
-        vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
-        }),
-        [context.range]
-      );
+      // console.info(`rgba(${r}, ${g}, ${b}, ${a})`);
+
+      // if (this.colorDecorationType) this.colorDecorationType.dispose();
+      this.colorDecorationType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
+        borderRadius: borderRadius,
+        color: fontColor,
+      });
+      this._trackDecoration("create");
+      vscode.window.activeTextEditor.setDecorations(this.colorDecorationType, [
+        range,
+      ]);
 
       return [
         new vscode.ColorPresentation(this._colorToString(context, color)),
@@ -161,39 +150,6 @@ class ColorPicker {
     } catch (error) {
       vscode.window.showErrorMessage(error.message);
     }
-  }
-
-  // 获取颜色和范围
-  _getColorAndRangeMaps(document) {
-    const hexMaps = getColorHexRangeMaps(document);
-    const rgbMaps = getColorRGBRangeMaps(document);
-    const rgbaMaps = [
-      ...getColorRGBA_Float_RangeMaps(document),
-      ...getColorRGBA_Int_RangeMaps(document),
-    ];
-
-    const maps = [];
-
-    maps.push(...hexMaps, ...rgbMaps, ...rgbaMaps);
-
-    for (const get of getColorNoPrefixRGBRangeMaps(document)) {
-      if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-        maps.push(get);
-      }
-    }
-
-    for (const get of getColorNoPrefixRGBA_Float_RangeMaps(document)) {
-      if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-        maps.push(get);
-      }
-    }
-
-    for (const get of getColorNoPrefixRGBA_Int_RangeMaps(document)) {
-      if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-        maps.push(get);
-      }
-    }
-    return maps;
   }
 
   /**
@@ -260,6 +216,48 @@ class ColorPicker {
   }
 }
 
+function applyBGColorToText(document) {
+  const maps = getColorAndRangeMaps(document);
+  maps.forEach((map) => {
+    vscode.window.activeTextEditor.setDecorations(map.decorationType, [
+      map.range,
+    ]);
+  });
+}
+
+// 获取颜色和范围
+function getColorAndRangeMaps(document) {
+  const hexMaps = getColorHexRangeMaps(document);
+  const rgbMaps = getColorRGBRangeMaps(document);
+  const rgbaMaps = [
+    ...getColorRGBA_Float_RangeMaps(document),
+    ...getColorRGBA_Int_RangeMaps(document),
+  ];
+
+  const maps = [];
+
+  maps.push(...hexMaps, ...rgbMaps, ...rgbaMaps);
+
+  for (const get of getColorNoPrefixRGBRangeMaps(document)) {
+    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+      maps.push(get);
+    }
+  }
+
+  for (const get of getColorNoPrefixRGBA_Float_RangeMaps(document)) {
+    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+      maps.push(get);
+    }
+  }
+
+  for (const get of getColorNoPrefixRGBA_Int_RangeMaps(document)) {
+    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
+      maps.push(get);
+    }
+  }
+  return maps;
+}
+
 function rangesEqual(range1, range2) {
   return (
     range1.start.line === range2.start.line &&
@@ -293,8 +291,13 @@ function getColorRGBRangeMaps(document) {
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
       map_list.push({
-        color: new vscode.Color(R / 255, G / 255, B / 255, 1),
         range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, 1)`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, 1),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
+          borderRadius: borderRadius,
+        }),
       });
     }
   }
@@ -318,8 +321,13 @@ function getColorNoPrefixRGBRangeMaps(document) {
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
       map_list.push({
-        color: new vscode.Color(R / 255, G / 255, B / 255, 1),
         range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, 1)`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, 1),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
+          borderRadius: borderRadius,
+        }),
       });
     }
   }
@@ -352,8 +360,13 @@ function getColorRGBA_Int_RangeMaps(document) {
       A <= 255
     ) {
       map_list.push({
-        color: new vscode.Color(R / 255, G / 255, B / 255, A),
         range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          borderRadius: borderRadius,
+        }),
       });
     }
   }
@@ -386,8 +399,13 @@ function getColorRGBA_Float_RangeMaps(document) {
       A <= 1
     ) {
       map_list.push({
-        color: new vscode.Color(R / 255, G / 255, B / 255, A),
         range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          borderRadius: borderRadius,
+        }),
       });
     }
   }
@@ -420,8 +438,13 @@ function getColorNoPrefixRGBA_Int_RangeMaps(document) {
       A <= 255
     ) {
       map_list.push({
-        color: new vscode.Color(R / 255, G / 255, B / 255, A / 255),
         range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, A / 255),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          borderRadius: borderRadius,
+        }),
       });
     }
   }
@@ -454,8 +477,13 @@ function getColorNoPrefixRGBA_Float_RangeMaps(document) {
       A <= 1
     ) {
       map_list.push({
-        color: new vscode.Color(R / 255, G / 255, B / 255, A),
         range: new vscode.Range(start, end),
+        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        color: new vscode.Color(R / 255, G / 255, B / 255, A),
+        decorationType: vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          borderRadius: borderRadius,
+        }),
       });
     }
   }
@@ -474,13 +502,18 @@ function getColorHexRangeMaps(document) {
     const start = document.positionAt(match.index);
     const end = document.positionAt(match.index + match[0].length);
     const hex = match[0].substring(1);
-    const r = parseInt(hex.substring(0, 2), 16) / 255;
-    const g = parseInt(hex.substring(2, 4), 16) / 255;
-    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
 
     map_list.push({
-      color: new vscode.Color(r, g, b, 1),
       range: new vscode.Range(start, end),
+      text: `rgba(${r}, ${g}, ${b}, 1)`,
+      color: new vscode.Color(r / 255, g / 255, b / 255, 1),
+      decorationType: vscode.window.createTextEditorDecorationType({
+        backgroundColor: `rgba(${r}, ${g}, ${b}, 1)`,
+        borderRadius: borderRadius,
+      }),
     });
   }
   return map_list;
@@ -516,4 +549,4 @@ function forceRefreshColors(document) {
   });
 }
 
-module.exports = { ColorPicker, forceRefreshColors };
+module.exports = { ColorPicker, forceRefreshColors, applyBGColorToText };

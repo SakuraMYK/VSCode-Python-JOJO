@@ -9,7 +9,12 @@ const {
   checkMissingSuperInit,
 } = require("./JS/diagnosticsPython.js");
 
-const { ColorPicker, forceRefreshColors } = require("./JS/colorPicker.js");
+const {
+  ColorPicker,
+  forceRefreshColors,
+  applyBGColorToText,
+} = require("./JS/colorPicker.js");
+
 const { checkPythonEnvironment } = require("./JS/runPython.js");
 const { propertyGenerator } = require("./JS/propertyGenerator.js");
 const { t, current } = require("./JS/language.js");
@@ -241,7 +246,9 @@ async function activate(context) {
   });
 
   if (vscode.window.activeTextEditor) {
-    checkPythonCode(vscode.window.activeTextEditor.document);
+    const document = vscode.window.activeTextEditor.document;
+    checkPythonCode(document);
+    applyBGColorToText(document);
   }
 }
 
