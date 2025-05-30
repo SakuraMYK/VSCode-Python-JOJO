@@ -10,7 +10,6 @@ async function applyTheme(themeName) {
       themeName = "Default Dark+";
       break;
     case "PyCodeJOJO Random":
-      console.info("use Random theme");
       await randomThemeFile();
       break;
   }
@@ -160,7 +159,7 @@ async function randomThemeFile() {
       text = text.replace(reFontStyle, () => randomFontStyle());
 
       fs.writeFileSync(newThemeFile, text, "utf-8");
-      setTimeout(resolve, 100);
+      setTimeout(resolve, 60);
     } catch (error) {
       console.error(error);
       reject(error);
