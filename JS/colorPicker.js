@@ -38,27 +38,9 @@ class ColorPicker {
    */
   constructor() {
     this.colorDecorationType = null;
-    this.backgroundDecorationTypes = []; // 跟踪所有创建的背景装饰器
-    this._decorationStats = {
-      created: 0,
-      disposed: 0,
-      active: 0,
-    };
   }
 
   // 添加一个方法来追踪装饰器统计信息
-  _trackDecoration(action) {
-    if (action === "create") {
-      this._decorationStats.created++;
-      this._decorationStats.active++;
-    } else if (action === "dispose") {
-      this._decorationStats.disposed++;
-      this._decorationStats.active--;
-    }
-    console.info(
-      `装饰器统计 - 创建: ${this._decorationStats.created}, 销毁: ${this._decorationStats.disposed}, 活动: ${this._decorationStats.active}`
-    );
-  }
 
   /**
    * 提供文档中的颜色信息。
@@ -139,7 +121,6 @@ class ColorPicker {
         borderRadius: borderRadius,
         color: fontColor,
       });
-      this._trackDecoration("create");
       vscode.window.activeTextEditor.setDecorations(this.colorDecorationType, [
         range,
       ]);
@@ -234,27 +215,10 @@ function getColorAndRangeMaps(document) {
     ...getColorRGBA_Int_RangeMaps(document),
   ];
 
-  const maps = [];
+  getColorNoPrefixRGBRangeMaps;
+  getColorNoPrefixRGBARangeMaps;
+  getColorNoPrefixRGBAngeMaps;
 
-  maps.push(...hexMaps, ...rgbMaps, ...rgbaMaps);
-
-  for (const get of getColorNoPrefixRGBRangeMaps(document)) {
-    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-      maps.push(get);
-    }
-  }
-
-  for (const get of getColorNoPrefixRGBA_Float_RangeMaps(document)) {
-    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-      maps.push(get);
-    }
-  }
-
-  for (const get of getColorNoPrefixRGBA_Int_RangeMaps(document)) {
-    if (!maps.some((map) => rangesEqual(map.range, get.range))) {
-      maps.push(get);
-    }
-  }
   return maps;
 }
 
@@ -279,7 +243,7 @@ function rangesEqual(range1, range2) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorRGBRangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(reRGB)];
 
   for (const match of matches) {
@@ -290,7 +254,7 @@ function getColorRGBRangeMaps(document) {
     const B = parseInt(match[3]);
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
-      map_list.push({
+      maps[(start, end)] = {
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, 1)`,
         color: new vscode.Color(R / 255, G / 255, B / 255, 1),
@@ -298,10 +262,10 @@ function getColorRGBRangeMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
           borderRadius: borderRadius,
         }),
-      });
+      };
     }
   }
-  return map_list;
+  return maps;
 }
 
 /**
@@ -310,7 +274,7 @@ function getColorRGBRangeMaps(document) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorNoPrefixRGBRangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(NoPrefix_reRGB)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
@@ -320,7 +284,7 @@ function getColorNoPrefixRGBRangeMaps(document) {
     const B = parseInt(match[3]);
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
-      map_list.push({
+      maps[(start, end)] = {
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, 1)`,
         color: new vscode.Color(R / 255, G / 255, B / 255, 1),
@@ -328,10 +292,10 @@ function getColorNoPrefixRGBRangeMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
           borderRadius: borderRadius,
         }),
-      });
+      };
     }
   }
-  return map_list;
+  return maps;
 }
 
 /**
@@ -340,7 +304,7 @@ function getColorNoPrefixRGBRangeMaps(document) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorRGBA_Int_RangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(reRGBA_Int)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
@@ -359,7 +323,7 @@ function getColorRGBA_Int_RangeMaps(document) {
       A >= 0 &&
       A <= 255
     ) {
-      map_list.push({
+      maps[(start, end)] = {
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, ${A})`,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
@@ -367,10 +331,10 @@ function getColorRGBA_Int_RangeMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
           borderRadius: borderRadius,
         }),
-      });
+      };
     }
   }
-  return map_list;
+  return maps;
 }
 
 /**
@@ -379,7 +343,7 @@ function getColorRGBA_Int_RangeMaps(document) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorRGBA_Float_RangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(reRGBA_Float)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
@@ -398,7 +362,7 @@ function getColorRGBA_Float_RangeMaps(document) {
       A >= 0 &&
       A <= 1
     ) {
-      map_list.push({
+      maps[(start, end)] = {
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, ${A})`,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
@@ -406,10 +370,10 @@ function getColorRGBA_Float_RangeMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
           borderRadius: borderRadius,
         }),
-      });
+      };
     }
   }
-  return map_list;
+  return maps;
 }
 
 /**
@@ -418,7 +382,7 @@ function getColorRGBA_Float_RangeMaps(document) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorNoPrefixRGBA_Int_RangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(NoPrefix_reRGBA_Int)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
@@ -437,7 +401,7 @@ function getColorNoPrefixRGBA_Int_RangeMaps(document) {
       A >= 0 &&
       A <= 255
     ) {
-      map_list.push({
+      maps[(start, end)] = {
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, ${A})`,
         color: new vscode.Color(R / 255, G / 255, B / 255, A / 255),
@@ -445,10 +409,10 @@ function getColorNoPrefixRGBA_Int_RangeMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
           borderRadius: borderRadius,
         }),
-      });
+      };
     }
   }
-  return map_list;
+  return maps;
 }
 
 /**
@@ -457,7 +421,7 @@ function getColorNoPrefixRGBA_Int_RangeMaps(document) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorNoPrefixRGBA_Float_RangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(NoPrefix_reRGBA_Float)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
@@ -476,7 +440,7 @@ function getColorNoPrefixRGBA_Float_RangeMaps(document) {
       A >= 0 &&
       A <= 1
     ) {
-      map_list.push({
+      maps[(start, end)] = {
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, ${A})`,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
@@ -484,10 +448,10 @@ function getColorNoPrefixRGBA_Float_RangeMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
           borderRadius: borderRadius,
         }),
-      });
+      };
     }
   }
-  return map_list;
+  return maps;
 }
 
 /**
@@ -496,7 +460,7 @@ function getColorNoPrefixRGBA_Float_RangeMaps(document) {
  * @returns {Array} - 包含颜色和范围的对象数组。
  */
 function getColorHexRangeMaps(document) {
-  const map_list = [];
+  const maps = {};
   const matches = [...document.getText().matchAll(reHEX)];
   for (const match of matches) {
     const start = document.positionAt(match.index);
@@ -506,7 +470,7 @@ function getColorHexRangeMaps(document) {
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
 
-    map_list.push({
+    maps[(start, end)] = {
       range: new vscode.Range(start, end),
       text: `rgba(${r}, ${g}, ${b}, 1)`,
       color: new vscode.Color(r / 255, g / 255, b / 255, 1),
@@ -514,9 +478,9 @@ function getColorHexRangeMaps(document) {
         backgroundColor: `rgba(${r}, ${g}, ${b}, 1)`,
         borderRadius: borderRadius,
       }),
-    });
+    };
   }
-  return map_list;
+  return maps;
 }
 
 // 强制刷新颜色的函数
