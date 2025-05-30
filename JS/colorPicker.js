@@ -17,13 +17,13 @@ const reRGBA_Int =
 const reRGBA_Float =
   /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(1|0|0\.\d+)\s*\)/gs;
 
-const reHEX = /#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})/gs;
+const reHEX = /#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b/gs;
 
-const reAlphafloat =
+const reAlphaFloat =
   /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(1|0|0\.\d+)\s*\)/;
 const reAlphaInt =
   /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(\d{1,3})\s*\)/;
-
+const reHexAlpha = /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})\b/gs;
 /**
  * ColorPicker 类实现 DocumentColorProvider 接口，用于在 VS Code 中提供颜色拾取功能。
  */
@@ -109,29 +109,52 @@ class ColorPicker {
     try {
       const { document, range } = context;
       const colorString = document.getText(range);
-      let a;
+      let a = 1;
+      let match;
       const r = color.red * 255;
       const g = color.green * 255;
       const b = color.blue * 255;
 
       if (colorString.startsWith("rgba")) {
-        const match = reAlphafloat.exec(colorString);
-        const alpha = parseFloat(match[1]);
-        if (alpha == 1) {
-          a = 255;
+        if ((match = reAlphaFloat.exec(colorString))) {
+          a = match[1] *255;
+        } else if ((match = reAlphaInt.exec(colorString))) {
+          a = match[1] ;
         } else {
-          a = alpha * 255;
+          console.error(
+            "provideColorPresentations colorString Invalid alpha value"
+          );
+          return;
         }
+      } else if (colorString.startsWith("rgb")) {
+        a = 1;
+      } else if (colorString.startsWith("(")) {
+        if ((match = reAlphaFloat.exec(colorString))) {
+          a = match[1] *255
+        } else if ((match = reAlphaInt.exec(colorString))) {
+          a = match[1]  ;
+        } else {
+          console.error(`colorPicker: Invalid alpha value in ${colorString}`);
+          return;
+        }
+      } else if (colorString.startsWith("#")) {
+        if ((match = reHexAlpha.exec(colorString))) {
+          a = parseInt(match[1], 16) / 255;
+        }
+      } else {
+        console.error("Unknown color format: " + colorString);
+        return;
       }
 
       // console.error(color.red, color.green, color.blue, color.alpha);
 
-      // this.currentEditor.setDecorations(
-      //   vscode.window.createTextEditorDecorationType({
-      //     backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
-      //   }),
-      //   [context.range]
-      // );
+      this.currentEditor.setDecorations(
+        vscode.window.createTextEditorDecorationType({
+          backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
+        }),
+        [context.range]
+      );
+
       return [
         new vscode.ColorPresentation(this._colorToString(context, color)),
       ];

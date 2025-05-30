@@ -14,6 +14,7 @@ const { checkPythonEnvironment } = require("./JS/runPython.js");
 const { propertyGenerator } = require("./JS/propertyGenerator.js");
 const { t, current } = require("./JS/language.js");
 const { applyTheme, PythonSyntaxHighlighter } = require("./JS/theme.js");
+const {readFileContent} = require("./JS/randomTheme.js");
 
 let enable_CheckForLoopVariableConflict = true;
 let enable_CheckImportVsLocalClassConflict = true;
@@ -55,7 +56,6 @@ async function checkPythonCode(document) {
 }
 async function activate(context) {
   if (!(await checkPythonEnvironment())) return;
-
   const pyHighlighter = new PythonSyntaxHighlighter();
 
   current.language = vscode.env.language;
@@ -182,6 +182,7 @@ async function activate(context) {
     }),
 
     vscode.workspace.onDidChangeTextDocument((event) => {
+      readFileContent()
       checkPythonCode(event.document);
       const editor = vscode.window.activeTextEditor;
       if (

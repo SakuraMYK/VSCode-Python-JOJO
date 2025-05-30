@@ -26,6 +26,11 @@
         "label": "PyCodeJOJO Dark2",
         "uiTheme": "vs-dark",
         "path": "./themes/dark2.json"
+      },
+      {
+        "label": "PyCodeJOJO Random",
+        "uiTheme": "vs-dark",
+        "path": "./themes/random.json"
       }
     ],
     "configuration": {
@@ -45,9 +50,10 @@
           "enum": [
             "PyCodeJOJO Dark",
             "PyCodeJOJO Dark2",
+            "PyCodeJOJO Random",
             "Disabled"
           ],
-          "default": "PyCodeJOJO Dark",
+          "default": "PyCodeJOJO Random",
           "description": "选择 PyCodeJOJO 主题样式"
         },
         "pycodejojo.enableColorPicker": {
