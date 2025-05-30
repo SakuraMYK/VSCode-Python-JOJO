@@ -16,6 +16,20 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "menus": {
+      "editor/context": [
+        {
+          "command": "pycodejojo.randomTheme",
+          "group": "navigation"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "pycodejojo.randomTheme",
+        "title": "random theme"
+      }
+    ],
     "themes": [
       {
         "label": "PyCodeJOJO Dark",

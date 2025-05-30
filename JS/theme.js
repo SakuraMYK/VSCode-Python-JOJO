@@ -14,7 +14,7 @@ async function applyTheme(themeName) {
       await randomThemeFile();
       break;
   }
-  console.info("Applying theme: ", themeName);
+
   await vscode.workspace
     .getConfiguration()
     .update(
@@ -22,6 +22,10 @@ async function applyTheme(themeName) {
       themeName,
       vscode.ConfigurationTarget.Global
     );
+
+  await vscode.workspace.getConfiguration("pycodejojo").update("theme"),
+    themeName,
+    vscode.ConfigurationTarget.Global;
 }
 
 class PythonSyntaxHighlighter {
@@ -156,7 +160,7 @@ async function randomThemeFile() {
       text = text.replace(reFontStyle, () => randomFontStyle());
 
       fs.writeFileSync(newThemeFile, text, "utf-8");
-      setTimeout(resolve, 10);
+      setTimeout(resolve, 100);
     } catch (error) {
       console.error(error);
       reject(error);

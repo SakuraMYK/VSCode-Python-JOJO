@@ -212,15 +212,19 @@ async function activate(context) {
         forceRefreshColors(editor.document);
         pyHighlighter.update(editor);
       }
-    }),
-
-    vscode.commands.registerCommand(
-      "pycodejojo.propertyGenerator",
-      (document, range) => {
-        propertyGenerator(document, range);
-      }
-    )
+    })
   );
+
+  vscode.commands.registerCommand(
+    "pycodejojo.propertyGenerator",
+    (document, range) => {
+      propertyGenerator(document, range);
+    }
+  );
+
+  vscode.commands.registerCommand("pycodejojo.randomTheme", async () => {
+    await applyTheme("PyCodeJOJO Random");
+  });
 
   if (vscode.window.activeTextEditor) {
     checkPythonCode(vscode.window.activeTextEditor.document);
