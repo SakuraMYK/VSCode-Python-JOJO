@@ -215,15 +215,29 @@ async function activate(context) {
     })
   );
 
-  vscode.commands.registerCommand(
-    "pycodejojo.propertyGenerator",
-    (document, range) => {
+  // 注册命令
+  const commandMap = {
+    "pycodejojo.propertyGenerator": (document, range) => {
       propertyGenerator(document, range);
-    }
-  );
+    },
+    "pycodejojo.applyRandomTheme": async () => {
+      await applyTheme("PyCodeJOJO Random");
+    },
+    "pycodejojo.applyDarkTheme": async () => {
+      await applyTheme("PyCodeJOJO Dark");
+    },
+    "pycodejojo.applyDark2Theme": async () => {
+      await applyTheme("PyCodeJOJO Dark2");
+    },
+    "pycodejojo.disableTheme": async () => {
+      await applyTheme("Disabled");
+    },
+  };
 
-  vscode.commands.registerCommand("pycodejojo.randomTheme", async () => {
-    await applyTheme("PyCodeJOJO Random");
+  Object.entries(commandMap).forEach(([command, callback]) => {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(command, callback)
+    );
   });
 
   if (vscode.window.activeTextEditor) {

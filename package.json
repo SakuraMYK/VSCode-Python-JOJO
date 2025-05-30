@@ -31,16 +31,16 @@
       ],
       "pycodejojo.themeMenu": [
         {
-          "command": "pycodejojo.randomTheme",
+          "command": "pycodejojo.applyRandomTheme",
           "group": "a@1"
         },
         {
           "command": "pycodejojo.applyDarkTheme",
-          "group": "preset@1"
+          "group": "theme@1"
         },
         {
           "command": "pycodejojo.applyDark2Theme",
-          "group": "preset@2"
+          "group": "theme@2"
         },
         {
           "command": "pycodejojo.disableTheme",
@@ -50,7 +50,7 @@
     },
     "commands": [
       {
-        "command": "pycodejojo.randomTheme",
+        "command": "pycodejojo.applyRandomTheme",
         "title": "Random Theme"
       },
       {
