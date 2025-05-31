@@ -193,6 +193,7 @@ class ColorPicker {
 
 function applyBGColorToText(document) {
   getColorAndRangeMaps(document).forEach((map) => {
+    console.info(document.getText(map.range), map.text);
     vscode.window.activeTextEditor.setDecorations(map.decorationType, [
       map.range,
     ]);
@@ -377,9 +378,9 @@ function getHexMaps(document) {
 
     switch (hexLength) {
       case 3:
-        R = parseInt(hex.substring(0, 2), 16);
-        G = parseInt(hex.substring(2, 4), 16);
-        B = parseInt(hex.substring(4, 6), 16);
+        R = parseInt(hex[0] + hex[0], 16);
+        G = parseInt(hex[1] + hex[1], 16);
+        B = parseInt(hex[2] + hex[2], 16);
         A = 1;
         break;
       case 6:
