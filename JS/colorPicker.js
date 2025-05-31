@@ -13,14 +13,6 @@ const reTupleRGBA =
 
 const reHEX = /#([0-9A-Fa-f]{8}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b/gs;
 
-const reAlphaFloat =
-  /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(1|0|0\.\d+)\s*\)/;
-
-const reAlphaInt =
-  /\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(\d{1,3})\s*\)/;
-
-const reHexAlpha = /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})\b/gs;
-
 const borderRadius = "9px";
 
 /**
@@ -30,9 +22,7 @@ class ColorPicker {
   /**
    * 构造函数，初始化缓存属性。
    */
-  constructor() {
-    this.colorDecorationType = null;
-  }
+  constructor() {}
 
   // 添加一个方法来追踪装饰器统计信息
 
@@ -65,74 +55,15 @@ class ColorPicker {
    */
   async provideColorPresentations(color, context) {
     try {
-      const { document, range } = context;
-      const colorString = document.getText(range);
-      let a = 1;
-      let match;
-      const r = color.red * 255;
-      const g = color.green * 255;
-      const b = color.blue * 255;
-
-      if (colorString.startsWith("rgba")) {
-        if ((match = reAlphaFloat.exec(colorString))) {
-          a = match[1];
-        } else if ((match = reAlphaInt.exec(colorString))) {
-          a = match[1] / 255;
-        } else {
-          console.error(
-            "provideColorPresentations colorString Invalid alpha value"
-          );
-          return;
-        }
-      } else if (colorString.startsWith("rgb")) {
-        a = 1;
-      } else if (colorString.startsWith("(")) {
-        if ((match = reAlphaFloat.exec(colorString))) {
-          a = match[1];
-        } else if ((match = reAlphaInt.exec(colorString))) {
-          a = match[1] / 255;
-        } else {
-          a = 255;
-        }
-      } else if (colorString.startsWith("#")) {
-        if ((match = reHexAlpha.exec(colorString))) {
-          a = parseInt(match[1], 16) / 255;
-        }
-      } else {
-        console.error("Unknown color format: " + colorString);
-        return;
-      }
-
-      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-      const fontColor = brightness > 186 ? "black" : "white";
-      // console.info("Brightness: ", brightness, "Font Color: ", fontColor);
-
-      // console.info(`rgba(${r}, ${g}, ${b}, ${a})`);
-
-      // if (this.colorDecorationType) this.colorDecorationType.dispose();
-      this.colorDecorationType = vscode.window.createTextEditorDecorationType({
-        backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
-        borderRadius: borderRadius,
-        color: fontColor,
-      });
-      vscode.window.activeTextEditor.setDecorations(this.colorDecorationType, [
-        range,
-      ]);
-
       return [
         new vscode.ColorPresentation(this._colorToString(context, color)),
       ];
     } catch (error) {
-      vscode.window.showErrorMessage(error.message);
+      console.error(error);
+      return [];
     }
   }
 
-  /**
-   * 比较两个范围数组是否相等。
-   * @param {vscode.Range[]} ranges1 - 第一个范围数组。
-   * @param {vscode.Range[]} ranges2 - 第二个范围数组。
-   * @returns {boolean} - 如果两个范围数组相等，则返回 true；否则返回 false。
-   */
   _areRangesEqual(ranges1, ranges2) {
     if (ranges1.length !== ranges2.length) {
       return false;
@@ -147,12 +78,6 @@ class ColorPicker {
     return true;
   }
 
-  /**
-   * 将颜色转换为字符串表示形式。
-   * @param {object} context - 包含文档和范围的对象。
-   * @param {vscode.Color} color - 要转换的颜色。
-   * @returns {string} - 颜色的字符串表示形式。
-   */
   _colorToString(context, color) {
     const { document, range } = context;
     const string = document.getText(range);

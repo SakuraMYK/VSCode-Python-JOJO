@@ -1,4 +1,6 @@
 const vscode = require("vscode");
+// 添加这行测试代码
+ 
 
 const diagnosticCollection =
   vscode.languages.createDiagnosticCollection("python");
@@ -75,7 +77,7 @@ async function activate(context) {
 
   if (enable_ColorPicker) {
     context.subscriptions.push(
-      // vscode.languages.registerColorProvider("*", new ColorPicker())
+      vscode.languages.registerColorProvider("*", new ColorPicker())
     );
   }
 
