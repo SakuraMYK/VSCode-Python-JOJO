@@ -193,24 +193,25 @@ class ColorPicker {
 
 function applyBGColorToText(document) {
   const maps = getColorAndRangeMaps(document);
-  maps.forEach((map) => {
-    vscode.window.activeTextEditor.setDecorations(map.decorationType, [
-      map.range,
-    ]);
-  });
+  // maps.forEach((map) => {
+  //   vscode.window.activeTextEditor.setDecorations(map.decorationType, [
+  //     map.range,
+  //   ]);
+  // });
 }
 
 // 获取颜色和范围
 function getColorAndRangeMaps(document) {
-  const hexMaps = getHexMaps(document);
-  const rgbMaps = getRGBMaps(document);
-  const rgbaMaps = [
-    ...getColorRGBA_Float_RangeMaps(document),
+  const maps = [
+    ...getRGBMaps(document),
     ...getRGBAMaps(document),
+    ...getTupleRGBMaps(document),
+    ...getTupleRGBAMaps(document),
+    ...getHexMaps(document),
   ];
-
-  getTupleRGBMaps;
-
+  maps.forEach((map) => {
+    console.log(document.getText(map.range));
+  });
   return maps;
 }
 
@@ -224,18 +225,21 @@ function rangesEqual(range1, range2) {
 }
 
 function getRGBMaps(document) {
-  const maps = {};
+  const maps = [];
   const matches = [...document.getText().matchAll(reRGB)];
 
   for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
+    const s = match.index;
+    const e = match.index + match[0].length;
+    const start = document.positionAt(s);
+    const end = document.positionAt(e);
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
-      maps[(start, end)] = {
+      maps.push({
+        position: [s, e],
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, 1)`,
         color: new vscode.Color(R / 255, G / 255, B / 255, 1),
@@ -243,18 +247,20 @@ function getRGBMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
           borderRadius: borderRadius,
         }),
-      };
+      });
     }
   }
   return maps;
 }
 
 function getRGBAMaps(document) {
-  const maps = {};
+  const maps = [];
   const matches = [...document.getText().matchAll(reRGBA)];
   for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
+    const s = match.index;
+    const e = match.index + match[0].length;
+    const start = document.positionAt(s);
+    const end = document.positionAt(e);
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
@@ -269,7 +275,8 @@ function getRGBAMaps(document) {
       A >= 0 &&
       A <= 255
     ) {
-      maps[(start, end)] = {
+      maps.push({
+        position: [s, e],
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, ${A})`,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
@@ -277,24 +284,27 @@ function getRGBAMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
           borderRadius: borderRadius,
         }),
-      };
+      });
     }
   }
   return maps;
 }
 
 function getTupleRGBMaps(document) {
-  const maps = {};
+  const maps = [];
   const matches = [...document.getText().matchAll(reTupleRGB)];
   for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
+    const s = match.index;
+    const e = match.index + match[0].length;
+    const start = document.positionAt(s);
+    const end = document.positionAt(e);
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
-      maps[(start, end)] = {
+      maps.push({
+        position: [s, e],
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, 1)`,
         color: new vscode.Color(R / 255, G / 255, B / 255, 1),
@@ -302,18 +312,20 @@ function getTupleRGBMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
           borderRadius: borderRadius,
         }),
-      };
+      });
     }
   }
   return maps;
 }
 
 function getTupleRGBAMaps(document) {
-  const maps = {};
+  const maps = [];
   const matches = [...document.getText().matchAll(reTupleRGBA)];
   for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
+    const s = match.index;
+    const e = match.index + match[0].length;
+    const start = document.positionAt(s);
+    const end = document.positionAt(e);
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
@@ -328,7 +340,8 @@ function getTupleRGBAMaps(document) {
       A >= 0 &&
       A <= 1
     ) {
-      maps[(start, end)] = {
+      maps.push({
+        position: [s, e],
         range: new vscode.Range(start, end),
         text: `rgba(${R}, ${G}, ${B}, ${A})`,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
@@ -336,24 +349,27 @@ function getTupleRGBAMaps(document) {
           backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
           borderRadius: borderRadius,
         }),
-      };
+      });
     }
   }
   return maps;
 }
 
 function getHexMaps(document) {
-  const maps = {};
+  const maps = [];
   const matches = [...document.getText().matchAll(reHEX)];
   for (const match of matches) {
-    const start = document.positionAt(match.index);
-    const end = document.positionAt(match.index + match[0].length);
+    const s = match.index;
+    const e = match.index + match[0].length;
+    const start = document.positionAt(s);
+    const end = document.positionAt(e);
     const hex = match[0].substring(1);
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
 
-    maps[(start, end)] = {
+    maps.push({
+      position: [s, e],
       range: new vscode.Range(start, end),
       text: `rgba(${r}, ${g}, ${b}, 1)`,
       color: new vscode.Color(r / 255, g / 255, b / 255, 1),
@@ -361,7 +377,7 @@ function getHexMaps(document) {
         backgroundColor: `rgba(${r}, ${g}, ${b}, 1)`,
         borderRadius: borderRadius,
       }),
-    };
+    });
   }
   return maps;
 }

@@ -75,7 +75,7 @@ async function activate(context) {
 
   if (enable_ColorPicker) {
     context.subscriptions.push(
-      vscode.languages.registerColorProvider("*", new ColorPicker())
+      // vscode.languages.registerColorProvider("*", new ColorPicker())
     );
   }
 
