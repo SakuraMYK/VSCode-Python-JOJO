@@ -192,7 +192,7 @@ class ColorPicker {
 }
 
 function applyBGColorToText(document) {
-  const maps = getColorAndRangeMaps(document);
+  getColorAndRangeMaps(document);
   // maps.forEach((map) => {
   //   vscode.window.activeTextEditor.setDecorations(map.decorationType, [
   //     map.range,
@@ -209,10 +209,12 @@ function getColorAndRangeMaps(document) {
     ...getTupleRGBAMaps(document),
     ...getHexMaps(document),
   ];
+  let count = 0;
   maps.forEach((map) => {
     console.log(document.getText(map.range));
+    count++;
   });
-  return maps;
+  console.error(count);
 }
 
 function rangesEqual(range1, range2) {
@@ -264,7 +266,7 @@ function getRGBAMaps(document) {
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
-    const A = parseInt(match[4]);
+    let A = parseFloat(match[4]);
     if (
       R >= 0 &&
       R <= 255 &&
@@ -275,6 +277,7 @@ function getRGBAMaps(document) {
       A >= 0 &&
       A <= 255
     ) {
+      if (A > 1) A = A / 255;
       maps.push({
         position: [s, e],
         range: new vscode.Range(start, end),
@@ -329,7 +332,7 @@ function getTupleRGBAMaps(document) {
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
-    const A = parseFloat(match[4]);
+    let A = parseFloat(match[4]);
     if (
       R >= 0 &&
       R <= 255 &&
@@ -338,8 +341,9 @@ function getTupleRGBAMaps(document) {
       B >= 0 &&
       B <= 255 &&
       A >= 0 &&
-      A <= 1
+      A <= 255
     ) {
+      if (A > 1) A = A / 255;
       maps.push({
         position: [s, e],
         range: new vscode.Range(start, end),

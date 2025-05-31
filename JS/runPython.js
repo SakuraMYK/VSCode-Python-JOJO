@@ -79,10 +79,10 @@ function checkPythonEnvironment() {
         );
         resolve(false);
       } else {
-        vscode.window.showInformationMessage(
-          t("checkPythonEnvironment.pluginEnabled"),
-          stdout
-        );
+        // vscode.window.showInformationMessage(
+        //   t("checkPythonEnvironment.pluginEnabled"),
+        //   stdout
+        // );
         resolve(true);
       }
     });
