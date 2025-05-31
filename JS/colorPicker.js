@@ -209,12 +209,9 @@ function getColorAndRangeMaps(document) {
     ...getTupleRGBAMaps(document),
     ...getHexMaps(document),
   ];
-  let count = 0;
-  maps.forEach((map) => {
+  getHexMaps(document).forEach((map) => {
     console.log(document.getText(map.range));
-    count++;
   });
-  console.error(count);
 }
 
 function rangesEqual(range1, range2) {
@@ -363,22 +360,50 @@ function getHexMaps(document) {
   const maps = [];
   const matches = [...document.getText().matchAll(reHEX)];
   for (const match of matches) {
+    const hex = match[0];
+    const hexLength = hex.length;
+
     const s = match.index;
-    const e = match.index + match[0].length;
+    const e = match.index + hexLength;
     const start = document.positionAt(s);
     const end = document.positionAt(e);
-    const hex = match[0].substring(1);
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
+
+    let R;
+    let G;
+    let B;
+    let A;
+
+    switch (hexLength) {
+      case 3:
+        R = parseInt(hex.substring(0, 2), 16);
+        G = parseInt(hex.substring(2, 4), 16);
+        B = parseInt(hex.substring(4, 6), 16);
+        A = 1;
+        break;
+      case 6:
+        R = parseInt(hex.substring(0, 2), 16);
+        G = parseInt(hex.substring(2, 4), 16);
+        B = parseInt(hex.substring(4, 6), 16);
+        A = 1;
+        break;
+      case 8:
+        R = parseInt(hex.substring(0, 2), 16);
+        G = parseInt(hex.substring(2, 4), 16);
+        B = parseInt(hex.substring(4, 6), 16);
+        A = parseInt(hex.substring(6, 8), 16) / 255;
+        break;
+      default:
+        console.error(`Invalid hex length: ${hexLength}`);
+        break;
+    }
 
     maps.push({
       position: [s, e],
       range: new vscode.Range(start, end),
-      text: `rgba(${r}, ${g}, ${b}, 1)`,
-      color: new vscode.Color(r / 255, g / 255, b / 255, 1),
+      text: `rgba(${R}, ${G}, ${B}, 1)`,
+      color: new vscode.Color(R / 255, G / 255, B / 255, A),
       decorationType: vscode.window.createTextEditorDecorationType({
-        backgroundColor: `rgba(${r}, ${g}, ${b}, 1)`,
+        backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
         borderRadius: borderRadius,
       }),
     });
