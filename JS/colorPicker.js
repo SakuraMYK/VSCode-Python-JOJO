@@ -396,14 +396,14 @@ function getHexMaps(document) {
         console.error(`Invalid hex length: ${hexLength}`);
         break;
     }
-
+    const rgbaText = `rgba(${R}, ${G}, ${B}, ${A})`;
     maps.push({
       position: [s, e],
       range: new vscode.Range(start, end),
-      text: `rgba(${R}, ${G}, ${B}, 1)`,
+      text: rgbaText,
       color: new vscode.Color(R / 255, G / 255, B / 255, A),
       decorationType: vscode.window.createTextEditorDecorationType({
-        backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+        backgroundColor: rgbaText,
         borderRadius: borderRadius,
       }),
     });
