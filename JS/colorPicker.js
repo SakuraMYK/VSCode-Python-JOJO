@@ -192,26 +192,22 @@ class ColorPicker {
 }
 
 function applyBGColorToText(document) {
-  getColorAndRangeMaps(document);
-  // maps.forEach((map) => {
-  //   vscode.window.activeTextEditor.setDecorations(map.decorationType, [
-  //     map.range,
-  //   ]);
-  // });
+  getColorAndRangeMaps(document).forEach((map) => {
+    vscode.window.activeTextEditor.setDecorations(map.decorationType, [
+      map.range,
+    ]);
+  });
 }
 
 // 获取颜色和范围
 function getColorAndRangeMaps(document) {
-  const maps = [
+  return [
     ...getRGBMaps(document),
     ...getRGBAMaps(document),
     ...getTupleRGBMaps(document),
     ...getTupleRGBAMaps(document),
     ...getHexMaps(document),
   ];
-  getHexMaps(document).forEach((map) => {
-    console.log(document.getText(map.range));
-  });
 }
 
 function rangesEqual(range1, range2) {
@@ -235,15 +231,16 @@ function getRGBMaps(document) {
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
+    const text = `rgba(${R}, ${G}, ${B}, 1)`;
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
       maps.push({
         position: [s, e],
         range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, 1)`,
+        text: text,
         color: new vscode.Color(R / 255, G / 255, B / 255, 1),
         decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
+          backgroundColor: text,
           borderRadius: borderRadius,
         }),
       });
@@ -264,6 +261,8 @@ function getRGBAMaps(document) {
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
     let A = parseFloat(match[4]);
+    const text = `rgba(${R}, ${G}, ${B}, ${A})`;
+
     if (
       R >= 0 &&
       R <= 255 &&
@@ -278,10 +277,10 @@ function getRGBAMaps(document) {
       maps.push({
         position: [s, e],
         range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        text: text,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
         decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          backgroundColor: text,
           borderRadius: borderRadius,
         }),
       });
@@ -301,15 +300,16 @@ function getTupleRGBMaps(document) {
     const R = parseInt(match[1]);
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
+    const text = `rgba(${R}, ${G}, ${B}, 1)`;
 
     if (R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255) {
       maps.push({
         position: [s, e],
         range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, 1)`,
+        text: text,
         color: new vscode.Color(R / 255, G / 255, B / 255, 1),
         decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, 1)`,
+          backgroundColor: text,
           borderRadius: borderRadius,
         }),
       });
@@ -330,6 +330,8 @@ function getTupleRGBAMaps(document) {
     const G = parseInt(match[2]);
     const B = parseInt(match[3]);
     let A = parseFloat(match[4]);
+    const text = `rgba(${R}, ${G}, ${B}, ${A})`;
+
     if (
       R >= 0 &&
       R <= 255 &&
@@ -344,10 +346,10 @@ function getTupleRGBAMaps(document) {
       maps.push({
         position: [s, e],
         range: new vscode.Range(start, end),
-        text: `rgba(${R}, ${G}, ${B}, ${A})`,
+        text: text,
         color: new vscode.Color(R / 255, G / 255, B / 255, A),
         decorationType: vscode.window.createTextEditorDecorationType({
-          backgroundColor: `rgba(${R}, ${G}, ${B}, ${A})`,
+          backgroundColor: text,
           borderRadius: borderRadius,
         }),
       });
@@ -360,11 +362,11 @@ function getHexMaps(document) {
   const maps = [];
   const matches = [...document.getText().matchAll(reHEX)];
   for (const match of matches) {
-    const hex = match[0];
+    const hex = match[1];
     const hexLength = hex.length;
 
     const s = match.index;
-    const e = match.index + hexLength;
+    const e = match.index + match[0].length;
     const start = document.positionAt(s);
     const end = document.positionAt(e);
 
