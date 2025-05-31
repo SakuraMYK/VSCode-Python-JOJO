@@ -1,3 +1,5 @@
+// 代码打算全部换成typescript 进行迁移
+
 const vscode = require("vscode");
 // 添加这行测试代码
  
